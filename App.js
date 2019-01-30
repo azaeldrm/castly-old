@@ -1,8 +1,12 @@
 import React from 'react';
+import moment from 'moment-timezone';
+import DeviceInfo from 'react-native-device-info';
+import { Localization } from 'expo-localization';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Defs, LinearGradient, Stop } from 'react-native-svg';
 import { LineChart, Grid } from 'react-native-svg-charts';
+import * as shape from 'd3-shape'
 
 
 export default class App extends React.Component {
@@ -13,6 +17,7 @@ export default class App extends React.Component {
       isLoading: true,
       isPredicted: false,
       location: '',
+      timestamp: null,
       days: '1',
       weatherObject: null,
       weatherResults: 'Do a search!',
@@ -23,7 +28,8 @@ export default class App extends React.Component {
 
 
   predictPress = async () => {
-    return fetch(`https://castly-test.herokuapp.com/?location=${this.state.location}&days=${this.state.days}`, {
+    let timestamp = Math.floor(Date.now()/1000)
+    return fetch(`https://castly-test.herokuapp.com/?timestamp=${timestamp}&location=${this.state.location}&days=${this.state.days}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -92,31 +98,36 @@ export default class App extends React.Component {
     return (
       <View style={styles.container}>
         <View style={styles.navBar}>
-          <MaterialCommunityIcons size={36} name="weather-cloudy" color={vars.appColor.weather.font}/>
+            <MaterialCommunityIcons size={36} name="weather-cloudy" color={vars.appColor.weather.font}/>
           <Text style={styles.appTitle}>{vars.appTitle}</Text>
         </View>
         <View style={styles.body}>
           <View style={styles.searchContainer}>
-            <TextInput clearButtonMode='always' onChangeText={(text) => this.setState({location: text})} placeholder='Enter location...' value={this.state.location} style={styles.searchInput}/>
+            <View style={{flex:4}}>
+              <TextInput clearButtonMode='always' onChangeText={(text) => this.setState({location: text})} placeholder='Enter location...' value={this.state.location} style={styles.searchInput}/>
+            </View>
+            <View style={{flex:1}}>
+              <TouchableOpacity onPress={this.predictPress.bind(this)} style={styles.searchButton}>
+                <MaterialCommunityIcons size={36} name="cloud-search" color='rgb(84, 84, 84)'/>
+              </TouchableOpacity>
+            </View>
           </View>
-          <LineChart style={styles.graphContainer} data={this.state.data} animate={true} contentInset={{top:5,bottom:5}} svg={{strokeWidth:3,stroke:'url(#gradient)'}}>
+          <LineChart style={styles.graphContainer} curve={ shape.curveBasis } data={this.state.data} animate={true} contentInset={{top:5,bottom:5}} svg={{strokeWidth:3,stroke:'url(#gradient)'}}>
             <Gradient/>
+            <Grid/>
           </LineChart>
           <View style={styles.dataContainer}>
             <ScrollView>
               <Text style={styles.dataText}>{this.state.weatherResults}</Text>
             </ScrollView>
           </View>
-          <View style={styles.buttonContainer}>
+          {/*<View style={styles.buttonContainer}>
             <TouchableOpacity onPress={this.predictPress.bind(this)} style={styles.button}>
-            {//onPress={this.state.isPredicted ? this.restartPress.bind(this) : this.predictPress.bind(this)}
-              }<Text style={styles.buttonText}>{this.state.buttonAct}</Text>
+              <Text style={styles.buttonText}>{this.state.buttonAct}</Text>
             </TouchableOpacity>
           </View>
-          {// <Image source={require('./assets/cloud.png')} style={{flex: 0.8, alignSelf: 'stretch', width: undefined, height: undefined}}/>
-        }</View>
+        */}</View>
         <View style={styles.tabBar}>
-
         </View>
       </View>
     )
@@ -218,9 +229,12 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     elevation: 3,
   },
+  searchButton: {
+    alignSelf: 'center'
+  },
   searchContainer: {
     flex: 1.5,
-    flexDirection: 'column',
+    flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -228,7 +242,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   graphContainer: {
-    height: 100,
+    height: 150,
     borderRadius: 8,
     flexDirection: 'row',
     marginHorizontal: 20,
