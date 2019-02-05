@@ -161,7 +161,7 @@ export default class App extends React.Component {
               <View style={{height: 1, backgroundColor: 'rgb(228, 228, 228)', width: '80%', alignSelf: 'center', marginVertical: 5}}/>
               <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                 <View style={{flexDirection: 'column', alignSelf: 'stretch'}}>
-                  <Text style={styles.dataTextDetails}>Best time:</Text>
+                  <Text style={styles.dataTextDetails}>Best time to take photos:</Text>
                   <Text style={[styles.dataTextDetails, {fontWeight: 'bold'}]}>{this.state.weatherObject.report.data[0].bestTime[0]} to {this.state.weatherObject.report.data[0].bestTime[1]}</Text>
                 </View>
                 <View style={{flexDirection: 'column', alignSelf: 'stretch'}}>
