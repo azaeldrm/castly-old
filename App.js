@@ -20,6 +20,7 @@ export default class App extends React.Component {
       isPredicted: false,
       timestamp: null,
       days: '2',
+      weatherIcon: 'amazon-drive',
       weatherObject: null,
       graphType: shape.curveCatmullRom,
       graphInset: {top:10,bottom:10, left: 0, right: 0},
@@ -40,33 +41,35 @@ export default class App extends React.Component {
     })
     .then( (response) => response.json() )
     .then( (responseJson) => {
-      if (this.state.isPredicted === false) {
-        this.setState({
-          weatherObject: responseJson,
-          weatherResults: responseJson.results,
-          isPredicted: true,
-          // graphBool: false,
-          textSize: 20,
-          location: '',
-          data: responseJson.forecast[0].cloudCover,
-          // graphType: shape.curveCatmullRomClosed.alpha(0.25),
-          // graphInset: {top:10,bottom:40, left: 20, right: 20}
-        })
-      } else {
-        this.setState({
-          weatherObject: responseJson,
-          weatherResults: responseJson.results,
-          location: '',
-          // graphBool: true,
-          data: responseJson.forecast[0].cloudCover,
-        })
-      }
+      this.setState({
+        weatherObject: responseJson,
+        weatherResults: responseJson.results,
+        isPredicted: true,
+        location: '',
+        data: responseJson.forecast[0].cloudCover,
+        weatherIcon: this.icons[responseJson.forecast[0].icon]
+      })
     })
     console.log(responseJson)
     .catch( (error) => {
       console.log(error)
     })
   };
+
+  icons = {
+    'partly-cloudy-day': 'weather-partlycloudy',
+    'partly-cloudy-night': 'weather-partlycloudy',
+    'clear-day': 'weather-sunny',
+    'clear-night': 'weather-night',
+    'rain': 'weather-rainy',
+    'snow': 'weather-snowy',
+    'wind': 'weather-windy',
+    'fog': 'weather-fog',
+    'cloudy': 'weather-cloudy',
+    'hail': 'weather-hail',
+    'thunderstorm': 'weather-lighting',
+    'tornado': 'weather-hurricane'
+  }
 
 
   render() {
@@ -105,7 +108,7 @@ export default class App extends React.Component {
     return (
       <View style={styles.container}>
         <View style={styles.navBar}>
-            <MaterialCommunityIcons size={36} name="weather-cloudy" color={vars.appColor.font.dark}/>
+            <MaterialCommunityIcons size={36} name='weather-cloudy' color={vars.appColor.font.dark}/>
           <Text style={styles.appTitle}>{vars.appTitle}</Text>
         </View>
         <View style={styles.body}>
@@ -119,7 +122,7 @@ export default class App extends React.Component {
           </View>
           <View style={styles.graphContainer}>
             <View style={styles.graphIcon}>
-              <MaterialCommunityIcons size={180} name="amazon-drive" color='rgb(230, 230, 230)'/>
+              <MaterialCommunityIcons size={180} name={this.state.weatherIcon} color='rgb(230, 230, 230)'/>
             </View>
             {/*<YAxis
                 data={[0, 1]}
@@ -140,7 +143,6 @@ export default class App extends React.Component {
                 svg={{strokeWidth:3,stroke:'url(#gradient)'}}
                 >
                 <Gradient/>
-                {/* this.state.isPredicted && <Grid/> */}
               </LineChart>
             </View>
           </View>
@@ -151,18 +153,23 @@ export default class App extends React.Component {
                 <Text style={[styles.dataTextDetails, {alignSelf: 'center'}]}>
                   {this.state.weatherObject.report.data[0].dateRequested}
                 </Text>
-                <Text style={[styles.dataTextTitle, {alignSelf: 'center'}]}>
-                  {'\n' + this.state.weatherObject.location}
-                </Text>
-                <Text style={[styles.dataTextBody, {alignSelf: 'center'}]}>
-                  {this.state.weatherObject.forecast[0].summary}
-                </Text>
+                <View style={{flexDirection: 'column', justifyContent: 'center', height:'100%', paddingBottom: 10}}>
+                  <Text style={[styles.dataTextTitle, {alignSelf: 'center'}]}>
+                    {this.state.weatherObject.location}
+                  </Text>
+                  <Text style={[styles.dataTextBody, {alignSelf: 'center'}]}>
+                    {this.state.weatherObject.forecast[0].summary}
+                  </Text>
+                </View>
               </View>
               <View style={{height: 1, backgroundColor: 'rgb(228, 228, 228)', width: '80%', alignSelf: 'center', marginVertical: 5}}/>
               <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                 <View style={{flexDirection: 'column', alignSelf: 'stretch'}}>
                   <Text style={styles.dataTextDetails}>Best time to take photos:</Text>
-                  <Text style={[styles.dataTextDetails, {fontWeight: 'bold'}]}>{this.state.weatherObject.report.data[0].bestTime[0]} to {this.state.weatherObject.report.data[0].bestTime[1]}</Text>
+                  <Text style={[styles.dataTextDetails, {fontWeight: 'bold'}]}>
+                    { this.state.weatherObject.report.data[0].recommendedTime ??
+                      {this.state.weatherObject.report.data[0].recommendedTime[0]} to {this.state.weatherObject.report.data[0].recommendedTime[1]}
+                      : {this.state.weatherObject.report.data[0].bestTime[0]} to {this.state.weatherObject.report.data[0].bestTime[1]} }</Text>
                 </View>
                 <View style={{flexDirection: 'column', alignSelf: 'stretch'}}>
                   <Text style={styles.dataTextDetails}>Cloud coverage:</Text>
@@ -204,7 +211,7 @@ const vars = {
   },
   fontSize: {
     mini: 8,
-    small: 12,
+    small: 10,
     medium: 16,
     large: 20,
     xlarge: 24
@@ -281,6 +288,7 @@ const styles = StyleSheet.create({
     // Test background
     // backgroundColor: 'rgba(249, 217, 41, 0.8)',
     marginTop: 20,
+    marginBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
     flex: 4,
@@ -330,7 +338,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexDirection: 'column',
     paddingHorizontal: 40,
-    paddingVertical: 20
+    paddingVertical: 30
   },
   appTitle: {
     fontSize: vars.fontSize.xlarge,
