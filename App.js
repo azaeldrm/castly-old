@@ -166,10 +166,7 @@ export default class App extends React.Component {
               <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                 <View style={{flexDirection: 'column', alignSelf: 'stretch'}}>
                   <Text style={styles.dataTextDetails}>Best time to take photos:</Text>
-                  <Text style={[styles.dataTextDetails, {fontWeight: 'bold'}]}>
-                    { this.state.weatherObject.report.data[0].recommendedTime ??
-                      {this.state.weatherObject.report.data[0].recommendedTime[0]} to {this.state.weatherObject.report.data[0].recommendedTime[1]}
-                      : {this.state.weatherObject.report.data[0].bestTime[0]} to {this.state.weatherObject.report.data[0].bestTime[1]} }</Text>
+                  <Text style={[styles.dataTextDetails, {fontWeight: 'bold'}]}>{ this.state.weatherObject.report.data[0].bestTime[0]} to {this.state.weatherObject.report.data[0].bestTime[1]}</Text>
                 </View>
                 <View style={{flexDirection: 'column', alignSelf: 'stretch'}}>
                   <Text style={styles.dataTextDetails}>Cloud coverage:</Text>
