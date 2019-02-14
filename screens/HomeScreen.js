@@ -1,6 +1,7 @@
 import React from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, ScrollView, RefreshControl } from "react-native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 
 export default class HomeScreen extends React.Component {
 
@@ -13,18 +14,98 @@ export default class HomeScreen extends React.Component {
     }
   };
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <View style={{flex: 1}}>
-          <Text>Home Screen</Text>
-          <Text onPress={() => this.props.navigation.navigate('PredictionScreen')}>Press here</Text>
-        </View>
-      </View>
-    );
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      weatherObject: null,
+      location: 'seattle',
+      isLoading: true,
+      isRefreshing: false,
+    }
   }
 
-};
+  icons = {
+    'partly-cloudy-day': 'weather-partlycloudy',
+    'partly-cloudy-night': 'weather-partlycloudy',
+    'clear-day': 'weather-sunny',
+    'clear-night': 'weather-night',
+    'rain': 'weather-rainy',
+    'snow': 'weather-snowy',
+    'wind': 'weather-windy',
+    'fog': 'weather-fog',
+    'cloudy': 'weather-cloudy',
+    'hail': 'weather-hail',
+    'thunderstorm': 'weather-lighting',
+    'tornado': 'weather-hurricane'
+  }
+
+  fetchData = async () => {
+    let timestamp = Math.floor(Date.now()/1000)
+    return fetch(`https://castly-test.herokuapp.com/instant/?timestamp=${timestamp}&location=${this.state.location}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then( response => response.json() )
+    .then( responseJson => {
+      this.setState({
+        weatherObject: responseJson,
+        weatherIcon: this.icons[responseJson.forecast[0].icon]
+      })
+    })
+    .catch( (error) => {
+      console.log(error)
+    })
+  }
+
+  _onRefresh = () => {
+    this.setState({isRefreshing: true});
+    this.fetchData().then(() => {
+      console.log('Home refreshed!')
+      this.setState({isRefreshing: false});
+    });
+  }
+
+
+  componentDidMount() {
+    this.fetchData().then(() => {
+      console.log('Home data mounted!')
+      this.setState({isLoading: false})
+    })
+  };
+
+
+
+
+  render() {
+      return (
+        <View style={styles.container}>
+          { this.state.isLoading ?
+            <View style={{flex:1, justifyContent: 'center', alignSelf: 'center'}}>
+              <Text>Loading...</Text>
+            </View>
+          :
+          <ScrollView contentContainerStyle={{flex:1}} refreshControl={<RefreshControl refreshing={this.state.isRefreshing} onRefresh={this._onRefresh}/>}>
+            <View style={{flex: 5, alignItems: 'center', justifyContent: 'center'}}>
+              <Text style={{fontSize: vars.fontSize.large, paddingBottom: 30}}>{this.state.weatherObject.location}</Text>
+              <MaterialCommunityIcons size={100} name={this.icons[this.state.weatherObject.forecast[0].icon]} color='rgba(0, 0, 0, 0.1)'/>
+            </View>
+            <View style={styles.dataContainer}>
+              <View style={styles.dataCard}>
+                <Text>{this.state.weatherObject.forecast[0].time}</Text>
+                <Text>{this.state.weatherObject.forecast[0].summary}</Text>
+                <Text>{this.state.weatherObject.forecast[0].cloudcast*100}% cloudy</Text>
+                <Text>{this.state.weatherObject.forecast[0].temp}</Text>
+              </View>
+            </View>
+          </ScrollView>
+          }
+        </View>
+      );
+    }
+  };
 
 const vars = {
   appColor: {
@@ -53,9 +134,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: vars.appColor.background.normal,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+    // alignItems: 'center',
     // justifyContent: 'center',
     // alignSelf: 'center'
+  },
+  dataCard: {
+    flex: 3.5,
+    alignSelf: 'stretch',
+    flexDirection: 'column',
+    borderRadius: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: vars.appColor.background.card,
+    elevation: 3
+  },
+  dataContainer: {
+    // Test background
+    backgroundColor: 'rgba(250, 180, 31, 0.27)',
+    //
+    // backgroundColor: vars.appColor.background.weather,
+    flex: 5,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'column',
+    paddingHorizontal: 40,
+    paddingVertical: 40
   },
 });

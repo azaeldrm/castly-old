@@ -18,8 +18,6 @@ export default class PredictionScreen extends React.Component {
       days: '1',
       weatherIcon: 'amazon-drive',
       weatherObject: null,
-      graphType: shape.curveBasis,
-      graphInset: {top:10,bottom:0, left: 0, right: 0},
     }
   };
 
@@ -38,7 +36,7 @@ export default class PredictionScreen extends React.Component {
     let timestamp = Math.floor(Date.now()/1000)
     console.log('Search started!')
     Keyboard.dismiss()
-    return fetch(`https://castly-test.herokuapp.com/?timestamp=${timestamp}&location=${this.state.location}&days=${this.state.days}`, {
+    return fetch(`https://castly-test.herokuapp.com/prediction/?timestamp=${timestamp}&location=${this.state.location}&days=${this.state.days}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -55,7 +53,6 @@ export default class PredictionScreen extends React.Component {
         weatherIcon: this.icons[responseJson.forecast[0].icon]
       })
     })
-    console.log(responseJson)
     .catch( (error) => {
       console.log(error)
     })
@@ -105,12 +102,12 @@ export default class PredictionScreen extends React.Component {
     const Line = ({ line }) => (
 
         <Path
-            y={ -1 }
             key={'line'}
             d={line}
             stroke={'url(#gradient)'}
             strokeWidth={ 2 }
             fill={'none'}
+            animate={true}
         />
     )
     const CustomGrid = ({ x, y, data, ticks }) => (
@@ -120,8 +117,8 @@ export default class PredictionScreen extends React.Component {
                     ticks.map(tick => (
                         <Line
                             key={ tick }
-                            x1={ '0%' }
-                            x2={ '100%' }
+                            x1={ '5%' }
+                            x2={ '95%' }
                             y1={ y(tick) }
                             y2={ y(tick) }
                             stroke={ 'rgba(0,0,0,0.05)' }
@@ -133,8 +130,8 @@ export default class PredictionScreen extends React.Component {
                     data.map((_, index) => (
                         <Line
                             key={ index }
-                            y1={ '0%' }
-                            y2={ '100%' }
+                            y1={ '5%' }
+                            y2={ '95%' }
                             x1={ x(index) }
                             x2={ x(index) }
                             stroke={ 'rgba(0,0,0,0.05)' }
@@ -183,52 +180,36 @@ export default class PredictionScreen extends React.Component {
             </View>
           </View>
           <View style={{ paddingVertical: 10, marginTop: 10 }}>
-            <Text style={{ alignSelf: 'center', fontSize: 16, color: 'rgb(38, 38, 38)', fontFamily: 'System' }}>{ this.state.isPredicted ? 'Cloud percentage' : ' '}</Text>
+            <Text style={styles.dataOpening}>{ this.state.isPredicted ? 'Cloud percentage' : ' '}</Text>
           </View>
           <View style={styles.graphContainer}>
             <View style={styles.graphIcon}>
               <MaterialCommunityIcons size={180} name={'amazon-drive'} color='rgb(230, 230, 230)'/>
             </View>
-            { this.state.isPredicted && <YAxis
-                data={[0, 1]}
-                style={{
-                  position: 'absolute',
-                  height: '100%',
-                  marginBottom: yAxisHeight,
-                  paddingHorizontal: 3,
-                  justifyContent: 'flex-end' }}
-                contentInset={yAxisInset}
-                svg={axesSvg}
-                formatLabel={value => {return ' ' + value*100 + '%'}}
-                numberOfTicks={3}
-            /> }
             <View style={{ flex: 1 }}>
-              <AreaChart
+              <LineChart
                 style={styles.graph}
-                curve={this.state.graphType}
-                yMin={0} yMax={1}
+                curve={shape.curveCatmullRom}
+                yMin={-0.1} yMax={1.1}
                 data={this.state.data}
                 animate={true}
-                contentInset={this.state.graphInset}
-                svg={{fill: vars.appColor.background.dark}}
+                contentInset={{top: 0, bottom: 0, left: 0, right: 0}}
+                svg={{strokeWidth: 3, stroke: 'url(#gradient)'}}
                 >
                 <Gradient/>
-                <Line/>
-                { this.state.isPredicted &&
-                  <XAxis
-                      style={{ marginHorizontal: 0, marginTop: xAxisHeight }}
-                      data={hours}
-                      xAccessor={ ({ item }) => item.hours }
-                      formatLabel={value => {return '    ' + value }}
-                      contentInset={{ }}
-                      svg={axesSvg}
-                      // xScale={scale.scaleTime}
-                  />
-                }
-                { this.state.isPredicted &&
-                  <CustomGrid belowChart={true}/>
-                }
-              </AreaChart>
+                { this.state.isPredicted && <YAxis
+                    data={[0, 1]}
+                    style={{
+                      position: 'absolute',
+                      height: '100%',
+                      marginBottom: yAxisHeight,
+                      paddingHorizontal: 3 }}
+                    contentInset={yAxisInset}
+                    svg={axesSvg}
+                    formatLabel={value => {return ' ' + value*100 + '%'}}
+                    numberOfTicks={3}
+                /> }
+              </LineChart>
             </View>
           </View>
           <View style={styles.dataContainer}>
@@ -281,7 +262,7 @@ const vars = {
   appTitle: 'Castly',
   appColor: {
     background: {
-      weather: 'rgb(168, 198, 205)',
+      weather: 'rgba(255, 218, 29, 0.62)',
       normal: 'rgb(240, 240, 240)',
       dark: 'rgb(26, 26, 26)',
       card: 'rgb(245, 245, 245)',
@@ -306,14 +287,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: vars.appColor.background.normal,
   },
-  // navBar: {
-  //   height: 55,
-  //   backgroundColor: vars.appColor.background.dark,
-  //   elevation: 3,
-  //   paddingHorizontal: 20,
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  // },
   body: {
     flex: 1,
     flexDirection: 'column',
@@ -349,7 +322,7 @@ const styles = StyleSheet.create({
   },
   graph: {
     // Test background
-    backgroundColor: 'rgba(118, 2, 163, 0.3)',
+    // backgroundColor: 'rgba(118, 2, 163, 0.3)',
     justifyContent: 'center',
     height: '100%',
     // To make appear as a card, activate these
@@ -367,11 +340,12 @@ const styles = StyleSheet.create({
   },
   graphContainer: {
     // Test background
-    // backgroundColor: 'rgba(249, 217, 41, 0.8)',
+    backgroundColor: 'rgba(249, 217, 41, 0.8)',
+    //
     // paddingBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 4,
+    flex: 3,
     justifyContent: 'center'
   },
   dataTextBody: {
@@ -413,13 +387,14 @@ const styles = StyleSheet.create({
   dataContainer: {
     // Test background
     // backgroundColor: 'rgba(250, 180, 31, 0.27)',
-    backgroundColor: vars.appColor.background.dark,
+    //
+    // backgroundColor: vars.appColor.background.weather,
     flex: 5,
     alignItems: 'center',
     justifyContent: 'space-between',
     flexDirection: 'column',
     paddingHorizontal: 40,
-    paddingVertical: 30
+    paddingVertical: 40
   },
   appTitle: {
     fontSize: vars.fontSize.xlarge,

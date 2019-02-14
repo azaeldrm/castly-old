@@ -1,8 +1,10 @@
 import React from 'react';
 import { createStackNavigator, createAppContainer, createBottomTabNavigator } from "react-navigation";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import HomeScreen from './screens/HomeScreen';
 import PredictionScreen from './screens/PredictionScreen';
+import SettingsScreen from './screens/SettingsScreen';
 
 
 const vars = {
@@ -53,10 +55,6 @@ const PredictionStack = createStackNavigator(
   },
 );
 
-PredictionStack.navigationOptions = {
-  tabBarLabel: 'Predictions',
-};
-
 const HomeStack = createStackNavigator(
   {
     HomeScreen: {
@@ -68,20 +66,62 @@ const HomeStack = createStackNavigator(
   },
 );
 
-HomeStack.navigationOptions = {
-  tabBarLabel: 'Home'
-};
+const SettingsStack = createStackNavigator(
+  {
+    SettingsScreen: {
+      screen: SettingsScreen
+    },
+  },
+  {
+    defaultNavigationOptions
+  }
+);
+
 
 const TabNavigator = createBottomTabNavigator(
   {
     HomeStack:
     {
       screen: HomeStack,
+      navigationOptions: {
+        tabBarLabel: 'Home',
+        tabBarIcon: ({tintColor}) =>
+        <MaterialCommunityIcons
+          size={20}
+          name='home-outline'
+          color={tintColor}
+          style={{paddingBottom: 15, paddingTop: 20}}
+        />,
+      },
     },
     PredictionStack:
     {
       screen: PredictionStack,
+      navigationOptions: {
+        tabBarLabel: 'Predictions',
+        tabBarIcon: ({tintColor}) =>
+        <MaterialCommunityIcons
+          size={20}
+          name='cloud-outline'
+          color={tintColor}
+          style={{paddingBottom: 15, paddingTop: 20}}
+        />,
+      },
     },
+    SettingsStack: {
+      screen: SettingsStack,
+      navigationOptions: {
+        tabBarLabel: 'Settings',
+        tabBarIcon: ({tintColor}) =>
+        <MaterialCommunityIcons
+          size={20}
+          name='tune'
+          color={tintColor}
+          style={{paddingBottom: 15, paddingTop: 20}}
+        />,
+        tabBarVisible: false,
+      }
+    }
   },
   {
     lazy: false,
