@@ -2,9 +2,9 @@ import React from 'react';
 import { createStackNavigator, createAppContainer, createBottomTabNavigator } from "react-navigation";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import HomeScreen from './screens/HomeScreen';
-import PredictionScreen from './screens/PredictionScreen';
-import SettingsScreen from './screens/SettingsScreen';
+import HomeScreen from './screens/HomeScreen/HomeScreen';
+import PredictionScreen from './screens/PredictionScreen/PredictionScreen';
+import SettingsScreen from './screens/SettingsScreen/SettingsScreen';
 
 
 const vars = {

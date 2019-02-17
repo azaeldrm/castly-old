@@ -127,13 +127,17 @@ export default class HomeScreen extends React.Component {
       return (
         <View style={styles.container}>
           { this.state.isLoading ?
-            <ScrollView contentContainerStyle={{flex:1, justifyContent: 'center', alignSelf: 'center'}} refreshControl={<RefreshControl refreshing={this.state.isRefreshing} onRefresh={this._onRefresh}/>}>
+            <ScrollView
+              contentContainerStyle={{flex:1, justifyContent: 'center', alignSelf: 'center'}}
+              refreshControl={<RefreshControl refreshing={this.state.isRefreshing}
+              onRefresh={this._onRefresh}/>}>
               <Text>{this.status}</Text>
             </ScrollView>
           :
           <ScrollView contentContainerStyle={{flex:1}} refreshControl={<RefreshControl refreshing={this.state.isRefreshing} onRefresh={this._onRefresh}/>}>
             <View style={{flex: 5, alignItems: 'center', justifyContent: 'center'}}>
-              <Text style={{fontSize: vars.fontSize.large, paddingBottom: 30}}>{this.state.weatherObject.location}</Text>
+              <Text style={{fontSize: vars.fontSize.large, paddingBottom: 0}}>{this.state.weatherObject.city}, {this.state.weatherObject.state}</Text>
+              <Text style={{fontSize: vars.fontSize.medium, paddingBottom: 15, color: 'rgb(150, 150, 150)'}}>{this.state.weatherObject.country}</Text>
               <MaterialCommunityIcons size={100} name={this.icons[this.state.weatherObject.forecast[0].icon]} color='rgba(0, 0, 0, 0.1)'/>
             </View>
             <View style={styles.dataContainer}>
@@ -145,7 +149,7 @@ export default class HomeScreen extends React.Component {
                 <Text>{this.state.weatherObject.forecast[0].time}</Text>
                 <Text>{this.state.weatherObject.forecast[0].summary}</Text>
                 <Text>{this.state.weatherObject.forecast[0].cloudcast*100}% cloudy</Text>
-                <Text>{this.state.weatherObject.forecast[0].temp}</Text>
+                <Text>{Math.floor(this.state.weatherObject.forecast[0].temp)}</Text>
               </View>
             }
             </View>
@@ -200,7 +204,7 @@ const styles = StyleSheet.create({
   },
   dataContainer: {
     // Test background
-    backgroundColor: 'rgba(250, 180, 31, 0.27)',
+    // backgroundColor: 'rgba(250, 180, 31, 0.27)',
     //
     // backgroundColor: vars.appColor.background.weather,
     flex: 5,

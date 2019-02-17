@@ -1,11 +1,13 @@
 import React from 'react';
 
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Keyboard } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Keyboard, Dimensions } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Defs, LinearGradient, Stop, Circle, G, Line } from 'react-native-svg';
 import { LineChart, AreaChart, Grid, Path, Decorator, XAxis, YAxis } from 'react-native-svg-charts';
+import DataCard from './components/DataCard';
 import * as shape from 'd3-shape';
 
+const { width } = Dimensions.get('window')
 
 export default class PredictionScreen extends React.Component {
   constructor(props) {
@@ -15,7 +17,7 @@ export default class PredictionScreen extends React.Component {
       isLoading: true,
       isPredicted: false,
       timestamp: null,
-      days: '1',
+      days: '3',
       weatherIcon: 'amazon-drive',
       weatherObject: null,
     }
@@ -44,6 +46,7 @@ export default class PredictionScreen extends React.Component {
     })
     .then( (response) => response.json() )
     .then( (responseJson) => {
+      console.log(responseJson.report.data)
       this.setState({
         weatherObject: responseJson,
         weatherResults: responseJson.results,
@@ -214,36 +217,17 @@ export default class PredictionScreen extends React.Component {
           </View>
           <View style={styles.dataContainer}>
           { this.state.isPredicted ?
-            <View style={styles.dataCard}>
-              <View style={{position: 'absolute', marginTop: 5, width: '100%', flexDirection: 'row', alignSelf: 'center', justifyContent: 'space-between'}}>
-                <MaterialCommunityIcons size={30} name={this.state.weatherIcon} color='rgba(0, 0, 0, 0.1)'/>
-                <Text style={{fontSize: 16, fontWeight: 'bold', alignSelf: 'center', color: 'rgba(0, 0, 0, 0.1)' }}>77°C </Text>
-              </View>
-              <View style={{flex: 3}}>
-                <Text style={[styles.dataTextDetails, {alignSelf: 'center'}]}>
-                  {this.state.weatherObject.report.data[0].dateRequested}
-                </Text>
-                <View style={{flexDirection: 'column', justifyContent: 'center', height:'100%', paddingBottom: 10}}>
-                  <Text style={[styles.dataTextTitle, {alignSelf: 'center'}]}>
-                    {this.state.weatherObject.location}
-                  </Text>
-                  <Text style={[styles.dataTextBody, {alignSelf: 'center'}]}>
-                    {this.state.weatherObject.forecast[0].summary}
-                  </Text>
-                </View>
-              </View>
-              <View style={{height: 1, backgroundColor: 'rgb(228, 228, 228)', width: '80%', alignSelf: 'center', marginVertical: 5}}/>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <View style={{flexDirection: 'column', alignSelf: 'stretch'}}>
-                  <Text style={styles.dataTextDetails}>Best time to take photos:</Text>
-                  <Text style={[styles.dataTextDetails, {fontWeight: 'bold'}]}>{ this.state.weatherObject.report.data[0].bestTime[0]} to {this.state.weatherObject.report.data[0].bestTime[1]}</Text>
-                </View>
-                <View style={{flexDirection: 'column', alignSelf: 'stretch'}}>
-                  <Text style={styles.dataTextDetails}>Cloud coverage:</Text>
-                  <Text style={[styles.dataTextDetails, {fontWeight: 'bold'}]}>{Math.floor(this.state.weatherObject.report.data[0].cloudCover*100) + '%'}</Text>
-                </View>
-              </View>
-            </View>
+            <ScrollView
+              horizontal={true}
+              pagingEnabled={true}
+              showsHorizontalScrollIndicator={false}
+              // decelerationRate={'fast'}
+              // snapToInterval={width}
+              snapToAlignment={"center"}>
+              <DataCard weatherObject={this.state.weatherObject} index={0}/>
+              <DataCard weatherObject={this.state.weatherObject} index={1}/>
+              <DataCard weatherObject={this.state.weatherObject} index={2}/>
+            </ScrollView>
             :
             <View>
               <Text style={styles.dataOpening}>Ready to process your location!</Text>
@@ -340,7 +324,7 @@ const styles = StyleSheet.create({
   },
   graphContainer: {
     // Test background
-    backgroundColor: 'rgba(249, 217, 41, 0.8)',
+    // backgroundColor: 'rgba(249, 217, 41, 0.8)',
     //
     // paddingBottom: 10,
     flexDirection: 'row',
@@ -393,7 +377,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     flexDirection: 'column',
-    paddingHorizontal: 40,
     paddingVertical: 40
   },
   appTitle: {
