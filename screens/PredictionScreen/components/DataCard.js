@@ -134,14 +134,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'System',
   },
-  dataOpening: {
-    fontSize: vars.fontSize.medium,
-    color: 'rgb(190, 190, 190)',
-    fontWeight: 'normal',
-    fontFamily: 'System',
-    alignSelf: 'center',
-    justifyContent: 'center'
-  },
   dataCard: {
     flex: 1,
     width: width - 40,

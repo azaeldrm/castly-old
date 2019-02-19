@@ -148,7 +148,7 @@ export default class HomeScreen extends React.Component {
               <View style={styles.dataCard}>
                 <Text>{this.state.weatherObject.forecast[0].time}</Text>
                 <Text>{this.state.weatherObject.forecast[0].summary}</Text>
-                <Text>{this.state.weatherObject.forecast[0].cloudcast*100}% cloudy</Text>
+                <Text>{Math.floor(this.state.weatherObject.forecast[0].cloudcast*100)}% cloudy</Text>
                 <Text>{Math.floor(this.state.weatherObject.forecast[0].temp)}</Text>
               </View>
             }

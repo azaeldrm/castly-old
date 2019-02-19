@@ -2,10 +2,10 @@ import React from 'react';
 
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Keyboard, Dimensions } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Defs, LinearGradient, Stop, Circle, G, Line } from 'react-native-svg';
-import { LineChart, AreaChart, Grid, Path, Decorator, XAxis, YAxis } from 'react-native-svg-charts';
 import DataCard from './components/DataCard';
-import * as shape from 'd3-shape';
+import Graph from './components/Graph';
+import InitialGraph from './components/InitialGraph';
+import OptionsButton from './components/OptionsButton';
 
 const { width } = Dimensions.get('window')
 
@@ -13,13 +13,17 @@ export default class PredictionScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: [ 0.5, 0.5, 0.3, 0.7, 0.1, 0.9, 0, 1, 0, 0.9, 0.1, 0.7, 0.3, 0.5, 0.5 ],
       isLoading: true,
       isPredicted: false,
       timestamp: null,
       days: '3',
       weatherIcon: 'amazon-drive',
-      weatherObject: null,
+      weatherObject: {},
+      graphShowing: {
+        cloud: true,
+        uv: false,
+        precip: false,
+      },
     }
   };
 
@@ -52,8 +56,6 @@ export default class PredictionScreen extends React.Component {
         weatherResults: responseJson.results,
         isPredicted: true,
         location: '',
-        data: responseJson.forecast[0].cloudCover,
-        weatherIcon: this.icons[responseJson.forecast[0].icon]
       })
     })
     .catch( (error) => {
@@ -61,118 +63,11 @@ export default class PredictionScreen extends React.Component {
     })
   };
 
-  icons = {
-    'partly-cloudy-day': 'weather-partlycloudy',
-    'partly-cloudy-night': 'weather-partlycloudy',
-    'clear-day': 'weather-sunny',
-    'clear-night': 'weather-night',
-    'rain': 'weather-rainy',
-    'snow': 'weather-snowy',
-    'wind': 'weather-windy',
-    'fog': 'weather-fog',
-    'cloudy': 'weather-cloudy',
-    'hail': 'weather-hail',
-    'thunderstorm': 'weather-lighting',
-    'tornado': 'weather-hurricane'
-  }
-
 
   render() {
 
-    // <Stop offset={'0%'} stopColor={'rgb(199, 199, 199)'}/>
-    // <Stop offset={'50%'} stopColor={'rgb(192, 223, 233)'}/>
-    // <Stop offset={'75%'} stopColor={'rgb(50, 182, 227)'}/>
-
-    {/* this.state.isPredicted && <XAxis
-        style={{ marginHorizontal: 0, marginVertical: 10, height: xAxisHeight }}
-        data={this.state.hours}
-        xAccessor={ ({ value }) => value }
-        formatLabel={value => {return value}}
-        contentInset={{ left: 10, right: 10 }}
-        svg={axesSvg}
-    /> */}
-
-    const Gradient = () => (
-        <Defs key={'gradient'}>
-            <LinearGradient id={'gradient'} x1={'0%'} y1={'0%'} x2={'0%'} y2={'100%'}>
-              <Stop offset={'100%'} stopColor={'rgb(214, 40, 40)'}/>
-              <Stop offset={'65%'} stopColor={'rgb(247, 214, 73)'}/>
-              <Stop offset={'0%'} stopColor={'rgb(111, 209, 247)'}/>
-            </LinearGradient>
-        </Defs>
-    )
-
-    const Line = ({ line }) => (
-
-        <Path
-            key={'line'}
-            d={line}
-            stroke={'url(#gradient)'}
-            strokeWidth={ 2 }
-            fill={'none'}
-            animate={true}
-        />
-    )
-    const CustomGrid = ({ x, y, data, ticks }) => (
-            <G>
-                {
-                    // Horizontal grid
-                    ticks.map(tick => (
-                        <Line
-                            key={ tick }
-                            x1={ '5%' }
-                            x2={ '95%' }
-                            y1={ y(tick) }
-                            y2={ y(tick) }
-                            stroke={ 'rgba(0,0,0,0.05)' }
-                        />
-                    ))
-                }
-                {
-                    // Vertical grid
-                    data.map((_, index) => (
-                        <Line
-                            key={ index }
-                            y1={ '5%' }
-                            y2={ '95%' }
-                            x1={ x(index) }
-                            x2={ x(index) }
-                            stroke={ 'rgba(0,0,0,0.05)' }
-                        />
-                    ))
-                }
-            </G>
-        )
-
-    const axesSvg = { fontSize: 10, weight: 'bold',  fill: 'rgb(200, 200, 200)' }
-    const xAxisInset = { top: 10, bottom: 10 }
-    const yAxisInset = { top: 10, bottom: 10 }
-    const xAxisHeight = 120
-    const yAxisHeight = 0
-    const hours = [
-      {hours: '06:00'},
-      {hours: '07:00'},
-      {hours: '08:00'},
-      {hours: '09:00'},
-      {hours: '10:00'},
-      {hours: '11:00'},
-      {hours: '12:00'},
-      {hours: '13:00'},
-      {hours: '14:00'},
-      {hours: '15:00'},
-      {hours: '16:00'},
-      {hours: '17:00'},
-      {hours: '18:00'}
-    ]
-
-
-
     return (
       <View style={styles.container}>
-        {/*<View style={styles.navBar}>
-          <MaterialCommunityIcons size={36} name='weather-cloudy' color={vars.appColor.font.dark}/>
-          <Text style={styles.appTitle}>{vars.appTitle}</Text>
-        </View>*/}
         <View style={styles.body}>
           <View style={styles.searchContainer}>
             <View style={styles.searchBar}>
@@ -183,59 +78,96 @@ export default class PredictionScreen extends React.Component {
             </View>
           </View>
           <View style={{ paddingVertical: 10, marginTop: 10 }}>
-            <Text style={styles.dataOpening}>{ this.state.isPredicted ? 'Cloud percentage' : ' '}</Text>
+            { this.state.isPredicted ?
+              <View style={styles.optionsContainer}>
+                <Text style={styles.dataText}>Cloud level</Text>
+              </View>
+              :
+              <View style={styles.optionsContainer}>
+                <Text> </Text>
+                <OptionsButton buttonText={"Cloud level"}/>
+                <OptionsButton buttonText={"UV level"}/>
+              </View>
+            }
           </View>
-          <View style={styles.graphContainer}>
+          <View style={styles.predictionContainer}>
             <View style={styles.graphIcon}>
-              <MaterialCommunityIcons size={180} name={'amazon-drive'} color='rgb(230, 230, 230)'/>
+              <MaterialCommunityIcons size={150} name={'amazon-drive'} color='rgb(230, 230, 230)'/>
             </View>
-            <View style={{ flex: 1 }}>
-              <LineChart
-                style={styles.graph}
-                curve={shape.curveCatmullRom}
-                yMin={-0.1} yMax={1.1}
-                data={this.state.data}
-                animate={true}
-                contentInset={{top: 0, bottom: 0, left: 0, right: 0}}
-                svg={{strokeWidth: 3, stroke: 'url(#gradient)'}}
-                >
-                <Gradient/>
-                { this.state.isPredicted && <YAxis
-                    data={[0, 1]}
-                    style={{
-                      position: 'absolute',
-                      height: '100%',
-                      marginBottom: yAxisHeight,
-                      paddingHorizontal: 3 }}
-                    contentInset={yAxisInset}
-                    svg={axesSvg}
-                    formatLabel={value => {return ' ' + value*100 + '%'}}
-                    numberOfTicks={3}
-                /> }
-              </LineChart>
-            </View>
-          </View>
-          <View style={styles.dataContainer}>
-          { this.state.isPredicted ?
-            <ScrollView
-              horizontal={true}
-              pagingEnabled={true}
-              showsHorizontalScrollIndicator={false}
-              // decelerationRate={'fast'}
-              // snapToInterval={width}
-              snapToAlignment={"center"}>
-              <DataCard weatherObject={this.state.weatherObject} index={0}/>
-              <DataCard weatherObject={this.state.weatherObject} index={1}/>
-              <DataCard weatherObject={this.state.weatherObject} index={2}/>
-            </ScrollView>
-            :
-            <View>
-              <Text style={styles.dataOpening}>Ready to process your location!</Text>
-            </View>
-          }
+            { this.state.isPredicted ?
+              <ScrollView
+                horizontal={true}
+                pagingEnabled={true}
+                showsHorizontalScrollIndicator={false}
+                snapToAlignment={"center"}
+                scrollEventThrottle={16}>
+                <View style={{flex: 1}}>
+                  <View style={styles.graphContainer}>
+                    <Graph
+                      weatherObject={this.state.weatherObject}
+                      // graphShowing={this.state.graphShowing}
+                      index={0}/>
+                  </View>
+                  <View style={styles.dataContainer}>
+                    <DataCard weatherObject={this.state.weatherObject} index={0}/>
+                  </View>
+                </View>
+                <View style={{flex: 1}}>
+                  <View style={styles.graphContainer}>
+                    <Graph
+                      weatherObject={this.state.weatherObject}
+                      // graphShowing={this.state.graphShowing}
+                      index={1}/>
+                  </View>
+                  <View style={styles.dataContainer}>
+                    <DataCard weatherObject={this.state.weatherObject} index={1}/>
+                  </View>
+                </View>
+                <View style={{flex: 1}}>
+                  <View style={styles.graphContainer}>
+                    <Graph
+                      weatherObject={this.state.weatherObject}
+                      // graphShowing={this.state.graphShowing}
+                      index={2}/>
+                  </View>
+                  <View style={styles.dataContainer}>
+                    <DataCard weatherObject={this.state.weatherObject} index={2}/>
+                  </View>
+                </View>
+              </ScrollView>
+              :
+              <View style={{flex: 1}}>
+                <View style={styles.graphContainer}>
+                  <InitialGraph/>
+                </View>
+                <View style={styles.dataContainer}>
+                  <Text style={styles.dataText}>Ready to process your location!</Text>
+                </View>
+              </View>
+            }
+
+            {/*<View style={styles.graphContainer}>
+              <View style={styles.graphIcon}>
+                <MaterialCommunityIcons size={180} name={'amazon-drive'} color='rgb(230, 230, 230)'/>
+              </View>
+              { this.state.isPredicted ?
+                <ScrollView
+                  horizontal={true}
+                  pagingEnabled={true}
+                  showsHorizontalScrollIndicator={false}
+                  snapToAlignment={"center"}>
+                  <Graph weatherObject={this.state.weatherObject} index={0}/>
+                  <Graph weatherObject={this.state.weatherObject} index={1}/>
+                  <Graph weatherObject={this.state.weatherObject} index={2}/>
+                </ScrollView>
+                :
+                <View style={{flex: 1}}>
+                  <InitialGraph dataPoints={vars.initialData}/>
+                </View>
+              }
+            </View>*/}
 
           </View>
-
         </View>
       </View>
     )
@@ -263,13 +195,22 @@ const vars = {
     medium: 16,
     large: 20,
     xlarge: 24
-  },
+  }
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: vars.appColor.background.normal,
+  },
+  predictionContainer: {
+    // Test background
+    // backgroundColor: 'rgba(180, 245, 92, 0.24)',
+    flex: 8,
+    paddingTop: 10
+  },
+  optionsContainer: {
+    flex: 1
   },
   body: {
     flex: 1,
@@ -304,53 +245,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     justifyContent: 'center',
   },
-  graph: {
-    // Test background
-    // backgroundColor: 'rgba(118, 2, 163, 0.3)',
-    justifyContent: 'center',
-    height: '100%',
-    // To make appear as a card, activate these
-    // borderRadius: 8,
-    // flexDirection: 'row',
-    // marginHorizontal: 20,
-    // backgroundColor: vars.appColor.background.card,
-    // elevation: 3
-  },
-  graphIcon: {
-    position: 'absolute',
-    flexDirection: 'column',
-    alignItems: 'center',
-    // backgroundColor: 'rgba(59, 147, 116, 0.26)',
-  },
   graphContainer: {
     // Test background
     // backgroundColor: 'rgba(249, 217, 41, 0.8)',
     //
-    // paddingBottom: 10,
-    flexDirection: 'row',
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    flex: 4,
+    // paddingBottom: 20,
+    // justifyContent: 'center'
+  },
+  graphIcon: {
+    // Test background
+    // backgroundColor: 'rgba(59, 147, 116, 0.26)',
+    position: 'absolute',
+    top: 0,
+    flexDirection: 'column',
     alignItems: 'center',
-    flex: 3,
-    justifyContent: 'center'
+    width: '100%',
   },
-  dataTextBody: {
-    fontSize: vars.fontSize.medium,
-    color: vars.appColor.font.normal,
-    fontWeight: 'normal',
-    fontFamily: 'System',
+  dataContainer: {
+    // Test background
+    // backgroundColor: 'rgba(250, 180, 31, 0.27)',
+    //
+    // backgroundColor: vars.appColor.background.weather,
+    paddingTop: 20,
+    flex: 6,
+    paddingBottom: 40,
+    // alignItems: 'center',
+    // justifyContent: 'space-between',
+    // flexDirection: 'column',
   },
-  dataTextDetails: {
-    fontSize: vars.fontSize.small,
-    color: vars.appColor.font.normal,
-    fontWeight: 'normal',
-    fontFamily: 'System',
-  },
-  dataTextTitle: {
-    fontSize: vars.fontSize.medium,
-    color: vars.appColor.font.normal,
-    fontWeight: 'bold',
-    fontFamily: 'System',
-  },
-  dataOpening: {
+  dataText: {
+    // backgroundColor: 'rgba(226, 80, 39, 0.29)',
     fontSize: vars.fontSize.medium,
     color: 'rgb(190, 190, 190)',
     fontWeight: 'normal',
@@ -358,38 +285,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center'
   },
-  dataCard: {
-    flex: 3.5,
-    alignSelf: 'stretch',
-    flexDirection: 'column',
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: vars.appColor.background.card,
-    elevation: 3
-  },
-  dataContainer: {
-    // Test background
-    // backgroundColor: 'rgba(250, 180, 31, 0.27)',
-    //
-    // backgroundColor: vars.appColor.background.weather,
-    flex: 5,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexDirection: 'column',
-    paddingVertical: 40
+  optionsContainer: {
+    flex: 1,
+    flexDirection: 'row',
   },
   appTitle: {
     fontSize: vars.fontSize.xlarge,
     color: vars.appColor.font.dark,
     paddingLeft: 15,
-  },
-  tabBar: {
-    backgroundColor: vars.appColor.background.dark,
-    height: 60,
-    justifyContent: 'space-around',
-    flexDirection: 'row',
-    elevation: 12
   }
 });
 
