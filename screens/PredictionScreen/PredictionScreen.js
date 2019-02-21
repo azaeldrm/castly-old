@@ -19,11 +19,7 @@ export default class PredictionScreen extends React.Component {
       days: '3',
       weatherIcon: 'amazon-drive',
       weatherObject: {},
-      graphShowing: {
-        cloud: true,
-        uv: false,
-        precip: false,
-      },
+      graphShowing: 0,
     }
   };
 
@@ -63,6 +59,12 @@ export default class PredictionScreen extends React.Component {
     })
   };
 
+  changeGraph = (value) => {
+    return this.setState({
+      graphShowing: value
+    })
+  }
+
 
   render() {
 
@@ -77,16 +79,23 @@ export default class PredictionScreen extends React.Component {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{ paddingVertical: 10, marginTop: 10 }}>
+          <View style={{flex: 1, flexDirection: 'row', width: '100%'}}>
             { this.state.isPredicted ?
-              <View style={styles.optionsContainer}>
-                <Text style={styles.dataText}>Cloud level</Text>
+              // Interim solution, still don't understand why justifyContent: 'space-between' is not working.
+              <View style={{marginLeft: 20, flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
+                <OptionsButton onPress={() => this.setState({graphShowing: 0})}>
+                  <Text> Cloud Level </Text>
+                </OptionsButton>
+                <OptionsButton onPress={() => this.setState({graphShowing: 1})}>
+                  <Text> UV Index </Text>
+                </OptionsButton>
+                <OptionsButton onPress={() => this.setState({graphShowing: 2})}>
+                  <Text> Precipitation </Text>
+                </OptionsButton>
               </View>
               :
-              <View style={styles.optionsContainer}>
+              <View>
                 <Text> </Text>
-                <OptionsButton buttonText={"Cloud level"}/>
-                <OptionsButton buttonText={"UV level"}/>
               </View>
             }
           </View>
@@ -105,7 +114,7 @@ export default class PredictionScreen extends React.Component {
                   <View style={styles.graphContainer}>
                     <Graph
                       weatherObject={this.state.weatherObject}
-                      // graphShowing={this.state.graphShowing}
+                      graphShowing={this.state.graphShowing}
                       index={0}/>
                   </View>
                   <View style={styles.dataContainer}>
@@ -116,7 +125,7 @@ export default class PredictionScreen extends React.Component {
                   <View style={styles.graphContainer}>
                     <Graph
                       weatherObject={this.state.weatherObject}
-                      // graphShowing={this.state.graphShowing}
+                      graphShowing={this.state.graphShowing}
                       index={1}/>
                   </View>
                   <View style={styles.dataContainer}>
@@ -127,7 +136,7 @@ export default class PredictionScreen extends React.Component {
                   <View style={styles.graphContainer}>
                     <Graph
                       weatherObject={this.state.weatherObject}
-                      // graphShowing={this.state.graphShowing}
+                      graphShowing={this.state.graphShowing}
                       index={2}/>
                   </View>
                   <View style={styles.dataContainer}>
@@ -207,7 +216,7 @@ const styles = StyleSheet.create({
     // Test background
     // backgroundColor: 'rgba(180, 245, 92, 0.24)',
     flex: 8,
-    paddingTop: 10
+    paddingTop: 5
   },
   optionsContainer: {
     flex: 1
@@ -230,7 +239,7 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     height: 50,
-    borderColor: 'white',
+    borderColor: vars.appColor.background.card,
     borderRadius: 8,
     backgroundColor: vars.appColor.background.card,
     alignSelf: 'stretch',
@@ -286,8 +295,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   optionsContainer: {
-    flex: 1,
     flexDirection: 'row',
+    paddingHorizontal: 0,
+    justifyContent: 'space-between'
   },
   appTitle: {
     fontSize: vars.fontSize.xlarge,

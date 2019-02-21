@@ -36,12 +36,32 @@ export default class Graph extends React.Component {
         svg={axesSvg}
     />*/}
 
-    const Gradient = () => (
-      <Defs key={'gradient'}>
-        <LinearGradient id={'gradient'} x1={'0'} y1={'0'} x2={'0'} y2={'100%'} gradientUnits="userSpaceOnUse">
+    const CloudGradient = () => (
+      <Defs key={'cloudgradient'}>
+        <LinearGradient id={'cloudgradient'} x1={'0'} y1={'0'} x2={'0'} y2={'100%'} gradientUnits="userSpaceOnUse">
           <Stop offset={'1'} stopColor={'rgb(214, 40, 40)'}/>
           <Stop offset={'0.70'} stopColor={'rgb(247, 214, 73)'}/>
           <Stop offset={'0'} stopColor={'rgb(111, 209, 247)'}/>
+        </LinearGradient>
+      </Defs>
+    )
+
+    const UVGradient = () => (
+      <Defs key={'uvgradient'}>
+        <LinearGradient id={'uvgradient'} x1={'0'} y1={'0'} x2={'0'} y2={'100%'} gradientUnits="userSpaceOnUse">
+          <Stop offset={'1'} stopColor={'rgb(206, 247, 111)'}/>
+          <Stop offset={'0.70'} stopColor={'rgb(255, 151, 43)'}/>
+          <Stop offset={'0'} stopColor={'rgb(113, 32, 32)'}/>
+        </LinearGradient>
+      </Defs>
+    )
+
+    const PrecipGradient = () => (
+      <Defs key={'precipgradient'}>
+        <LinearGradient id={'precipgradient'} x1={'0'} y1={'0'} x2={'0'} y2={'100%'} gradientUnits="userSpaceOnUse">
+          <Stop offset={'1'} stopColor={'rgb(111, 209, 247)'}/>
+          <Stop offset={'0.70'} stopColor={'rgb(57, 107, 157)'}/>
+          <Stop offset={'0'} stopColor={'rgb(93, 93, 93)'}/>
         </LinearGradient>
       </Defs>
     )
@@ -107,11 +127,78 @@ export default class Graph extends React.Component {
       {hours: '18:00'}
     ]
 
+    let graphToShow = null
+    var data = [0,1]
+
+    if (this.props.graphShowing === 0) {
+      data = [0,1]
+      graphToShow =
+      <LineChart
+        style={styles.graph}
+        curve={shape.curveMonotoneX}
+        yMin={0}
+        yMax={1}
+        data={this.props.weatherObject.forecast[this.props.index].cloudCover}
+        animate={true}
+        contentInset={{top: 10, bottom: 10, left: 0, right: 0}}
+        svg={{strokeWidth: 2, stroke: 'url(#cloudgradient)'}}
+        >
+        <CloudGradient/>
+        <Grid
+          belowChart={true}
+          svg={{
+            strokeOpacity: 0.15
+          }}
+        />
+      </LineChart>
+    } else if (this.props.graphShowing === 1) {
+      data = [0,11]
+      graphToShow =
+      <LineChart
+        style={styles.graph}
+        curve={shape.curveMonotoneX}
+        yMin={0}
+        yMax={11}
+        data={this.props.weatherObject.forecast[this.props.index].uvIndex}
+        animate={true}
+        contentInset={{top: 10, bottom: 10, left: 0, right: 0}}
+        svg={{strokeWidth: 2, stroke: 'url(#uvgradient)'}}
+        >
+        <UVGradient/>
+        <Grid
+          belowChart={true}
+          svg={{
+            strokeOpacity: 0.15
+          }}
+        />
+      </LineChart>
+    } else if (this.props.graphShowing === 2) {
+      data = [0,0.2]
+      graphToShow =
+      <LineChart
+        style={styles.graph}
+        curve={shape.curveMonotoneX}
+        yMin={0}
+        yMax={0.2}
+        data={this.props.weatherObject.forecast[this.props.index].precipProbability}
+        animate={true}
+        contentInset={{top: 10, bottom: 10, left: 0, right: 0}}
+        svg={{strokeWidth: 2, stroke: 'url(#precipgradient)'}}
+        >
+        <PrecipGradient/>
+        <Grid
+          belowChart={true}
+          svg={{
+            strokeOpacity: 0.15
+          }}
+        />
+      </LineChart>
+    }
 
     return (
       <View style={{flex: 1}}>
         <YAxis
-            data={[0,1]}
+            data={data}
             style={{
               position: 'absolute',
               flexDirection: 'column',
@@ -120,49 +207,18 @@ export default class Graph extends React.Component {
               }}
             contentInset={yAxisInset}
             svg={axesSvg}
-            formatLabel={value => {return '' + value*100 + '%'}}
+            formatLabel={value => {
+              if (this.props.graphShowing === 0) {
+                return ('' + value*100 + '%')
+              } else if (this.props.graphShowing === 1) {
+                return ('' + value)
+              } else if (this.props.graphShowing === 2) {
+                return ('' + value*100 + '%')
+              }
+            }}
             numberOfTicks={4}
         />
-        <LineChart
-          style={styles.graph}
-          curve={shape.curveMonotoneX}
-          yMin={0}
-          yMax={1}
-          data={this.props.weatherObject.forecast[this.props.index].cloudCover}
-          animate={true}
-          contentInset={{top: 10, bottom: 10, left: 0, right: 0}}
-          svg={{strokeWidth: 2, stroke: 'url(#gradient)'}}
-          >
-          <Gradient/>
-          <Grid
-            belowChart={true}
-            svg={{
-              strokeOpacity: 0.15
-            }}
-          />
-        </LineChart>
-        <LineChart
-          style={StyleSheet.absoluteFill}
-          curve={shape.curveMonotoneX}
-          yMin={0}
-          yMax={10}
-          data={this.props.weatherObject.forecast[this.props.index].uvIndex}
-          animate={true}
-          contentInset={{top: 10, bottom: 10, left: 0, right: 0}}
-          svg={{strokeWidth: 2, stroke: 'red', strokeOpacity: 0.1}}
-          >
-        </LineChart>
-        <LineChart
-          style={StyleSheet.absoluteFill}
-          curve={shape.curveMonotoneX}
-          yMin={0}
-          yMax={1}
-          data={this.props.weatherObject.forecast[this.props.index].precipProbability}
-          animate={true}
-          contentInset={{top: 10, bottom: 10, left: 0, right: 0}}
-          svg={{strokeWidth: 2, stroke: 'blue', strokeOpacity: 0.1}}
-          >
-        </LineChart>
+        {graphToShow}
       </View>
 
     )
