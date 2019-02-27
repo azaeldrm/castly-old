@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, Text, ScrollView, RefreshControl, Alert, ToastAndroid } from "react-native";
+import { StyleSheet, View, Text, ScrollView, RefreshControl, Alert, ToastAndroid, Animated } from "react-native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Constants, Location, Permissions } from 'expo';
 import moment from 'moment-timezone';
@@ -26,7 +26,8 @@ export default class HomeScreen extends React.Component {
       isLoading: true,
       isRefreshing: false,
       isLocationOn: false,
-      componentDidMount: false
+      componentDidMount: false,
+      fadeValue: new Animated.Value(0),
     }
 
     this.location = null
@@ -46,6 +47,15 @@ export default class HomeScreen extends React.Component {
     'hail': 'weather-hail',
     'thunderstorm': 'weather-lighting',
     'tornado': 'weather-hurricane'
+  }
+
+
+  _fadeAnimation = () => {
+    Animated.timing(this.state.fadeValue, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start()
   }
 
 
@@ -91,7 +101,8 @@ export default class HomeScreen extends React.Component {
     .then(() => {
       console.log('Location fetched!')
       this.setState({isRefreshing: false, isLoading: false})
-      console.log('Home refreshed!');
+      console.log('Home refreshed!')
+      this._fadeAnimation();
     })
     .catch ((error) => {
       console.log(error)
@@ -114,6 +125,7 @@ export default class HomeScreen extends React.Component {
       console.log('Location acquired!')
       this.setState({isLoading: false, componentDidMount: true})
       console.log('Home data acquired!')
+      this._fadeAnimation()
     })
     .catch ((error) => {
       console.log(error)
@@ -126,21 +138,28 @@ export default class HomeScreen extends React.Component {
   render() {
       return (
         <View style={styles.container}>
+        <Animated.View style={{flex: 1, opacity: this.state.fadeValue}}>
           { this.state.isLoading ?
             <ScrollView
               contentContainerStyle={{flex:1, justifyContent: 'center', alignSelf: 'center'}}
-              refreshControl={<RefreshControl refreshing={this.state.isRefreshing}
+              refreshControl={<RefreshControl
+              refreshing={this.state.isRefreshing}
               onRefresh={this._onRefresh}/>}>
               <Text>{this.status}</Text>
             </ScrollView>
-          :
-          <ScrollView contentContainerStyle={{flex:1}} refreshControl={<RefreshControl refreshing={this.state.isRefreshing} onRefresh={this._onRefresh}/>}>
-            <View style={{flex: 5, alignItems: 'center', justifyContent: 'center'}}>
-              <Text style={{fontSize: vars.fontSize.large, paddingBottom: 0}}>{this.state.weatherObject.city}, {this.state.weatherObject.state}</Text>
-              <Text style={{fontSize: vars.fontSize.medium, paddingBottom: 15, color: 'rgb(150, 150, 150)'}}>{this.state.weatherObject.country}</Text>
-              <MaterialCommunityIcons size={100} name={this.icons[this.state.weatherObject.forecast[0].icon]} color='rgba(0, 0, 0, 0.1)'/>
-            </View>
-            <View style={styles.dataContainer}>
+            :
+            <ScrollView
+              contentContainerStyle={{flex:1}}
+              refreshControl={<RefreshControl
+              refreshing={this.state.isRefreshing}
+              onRefresh={this._onRefresh}/>}>
+              <View style={{flex: 5, alignItems: 'center', justifyContent: 'center', paddingTop: 50}}>
+                <Text style={{fontSize: vars.fontSize.small, paddingBottom: 30, color: 'rgb(150, 150, 150)'}}>You're currently in...</Text>
+                <Text style={{fontSize: vars.fontSize.large, paddingBottom: 0}}>{this.state.weatherObject.city}, {this.state.weatherObject.state}</Text>
+                <Text style={{fontSize: vars.fontSize.medium, paddingBottom: 15, color: 'rgb(150, 150, 150)'}}>{this.state.weatherObject.country}</Text>
+                <MaterialCommunityIcons size={100} name={this.icons[this.state.weatherObject.forecast[0].icon]} color='rgba(0, 0, 0, 0.1)'/>
+              </View>
+              <View style={styles.dataContainer}>
             { this.state.errorMessage ?
               <View>
               </View>
@@ -155,6 +174,7 @@ export default class HomeScreen extends React.Component {
             </View>
           </ScrollView>
           }
+        </Animated.View>
         </View>
       );
     }

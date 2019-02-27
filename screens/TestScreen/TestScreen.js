@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Keyboard, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Keyboard, Dimensions, Animated } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import DataCard from './components/DataCard';
 import Graph from './components/Graph';
@@ -10,7 +10,7 @@ import Swiper from 'react-native-swiper';
 
 const { width } = Dimensions.get('window')
 
-export default class PredictionScreen extends React.Component {
+export default class TestScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -21,6 +21,9 @@ export default class PredictionScreen extends React.Component {
       weatherIcon: 'amazon-drive',
       weatherObject: {},
       graphShowing: 0,
+      elevation1: 0,
+      elevation2: 3,
+      elevation3: 3,
     }
   };
 
@@ -34,6 +37,9 @@ export default class PredictionScreen extends React.Component {
     }
   };
 
+  scrollToInitialPosition = () => {
+    this.scrollViewRef.scrollTo({ x: 0 });
+  }
 
   predictPress = async () => {
     let timestamp = Math.floor(Date.now()/1000)
@@ -66,106 +72,109 @@ export default class PredictionScreen extends React.Component {
     })
   }
 
+  touchPredictButton = async () => {
+    this.predictPress()
+    .then( () => {
+    if (this.state.isPredicted === true) {
+      this.scrollToInitialPosition()
+      this.setState({graphShowing: 0, elevation1: 0, elevation2: 3, elevation3: 3})
+      }
+    })
+  }
+
 
   render() {
 
     return (
       <View style={styles.container}>
-        <Swiper
-          loop={false}
-          showsPagination={false}
-          index={0}
-          >
-          <View style={styles.body}>
-            <View style={styles.searchContainer}>
-              <View style={styles.searchBar}>
-                <TextInput clearButtonMode='always' onChangeText={(text) => this.setState({location: text})} placeholder='Enter location...' value={this.state.location} style={styles.searchInput}/>
-                <TouchableOpacity onPress={this.predictPress.bind(this)} style={styles.searchButton}>
-                  <MaterialCommunityIcons size={36} name="magnify" color='rgb(200, 200, 200)'/>
-                </TouchableOpacity>
-              </View>
+        <View style={styles.body}>
+          <View style={styles.searchContainer}>
+            <View style={styles.searchBar}>
+              <TextInput clearButtonMode='always' onChangeText={(text) => this.setState({location: text})} placeholder='Enter location...' value={this.state.location} style={styles.searchInput}/>
+              <TouchableOpacity onPress={this.touchPredictButton.bind(this)} style={styles.searchButton}>
+                <MaterialCommunityIcons size={36} name="magnify" color='rgb(200, 200, 200)'/>
+              </TouchableOpacity>
             </View>
-            <View style={{flex: 1, flexDirection: 'row', width: '100%'}}>
-              { this.state.isPredicted ?
-                // Interim solution, still don't understand why justifyContent: 'space-between' is not working.
-                <View style={{marginLeft: 20, flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
-                  <OptionsButton onPress={() => this.setState({graphShowing: 0})}>
-                    <Text> Cloud Level </Text>
-                  </OptionsButton>
-                  <OptionsButton onPress={() => this.setState({graphShowing: 1})}>
-                    <Text> UV Index </Text>
-                  </OptionsButton>
-                  <OptionsButton onPress={() => this.setState({graphShowing: 2})}>
-                    <Text> Precipitation </Text>
-                  </OptionsButton>
-                </View>
-                :
-                <View>
-                  <Text> </Text>
-                </View>
-              }
-            </View>
-            <View style={styles.predictionContainer}>
-              <View style={styles.graphIcon}>
-                <MaterialCommunityIcons size={150} name={'amazon-drive'} color='rgb(230, 230, 230)'/>
+          </View>
+          <View style={{flex: 1, flexDirection: 'row', width: '100%'}}>
+            { this.state.isPredicted ?
+              // Interim solution, still don't understand why justifyContent: 'space-between' is not working.
+              <View style={{marginLeft: 20, flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
+                <OptionsButton onPress={() => this.setState({graphShowing: 0, elevation1: 0, elevation2: 3, elevation3: 3})} elevation={this.state.elevation1}>
+                  <Text> Cloud Level </Text>
+                </OptionsButton>
+                <OptionsButton onPress={() => this.setState({graphShowing: 1, elevation1: 3, elevation2: 0, elevation3: 3})} elevation={this.state.elevation2}>
+                  <Text> UV Index </Text>
+                </OptionsButton>
+                <OptionsButton onPress={() => this.setState({graphShowing: 2, elevation1: 3, elevation2: 3, elevation3: 0})} elevation={this.state.elevation3}>
+                  <Text> Precipitation </Text>
+                </OptionsButton>
               </View>
-              { this.state.isPredicted ?
-                <ScrollView
-                  horizontal={true}
-                  pagingEnabled={true}
-                  showsHorizontalScrollIndicator={false}
-                  snapToAlignment={"center"}
-                  scrollEventThrottle={16}>
-                  <View style={{flex: 1}}>
-                    <View style={styles.graphContainer}>
-                      <Graph
-                        weatherObject={this.state.weatherObject}
-                        graphShowing={this.state.graphShowing}
-                        index={0}/>
-                    </View>
-                    <View style={styles.dataContainer}>
-                      <DataCard weatherObject={this.state.weatherObject} index={0}/>
-                    </View>
-                  </View>
-                  <View style={{flex: 1}}>
-                    <View style={styles.graphContainer}>
-                      <Graph
-                        weatherObject={this.state.weatherObject}
-                        graphShowing={this.state.graphShowing}
-                        index={1}/>
-                    </View>
-                    <View style={styles.dataContainer}>
-                      <DataCard weatherObject={this.state.weatherObject} index={1}/>
-                    </View>
-                  </View>
-                  <View style={{flex: 1}}>
-                    <View style={styles.graphContainer}>
-                      <Graph
-                        weatherObject={this.state.weatherObject}
-                        graphShowing={this.state.graphShowing}
-                        index={2}/>
-                    </View>
-                    <View style={styles.dataContainer}>
-                      <DataCard weatherObject={this.state.weatherObject} index={2}/>
-                    </View>
-                  </View>
-                </ScrollView>
-                :
+              :
+              <View>
+                <Text> </Text>
+              </View>
+            }
+          </View>
+          <View style={styles.predictionContainer}>
+            <View style={styles.graphIcon}>
+              <MaterialCommunityIcons size={150} name={'amazon-drive'} color='rgb(230, 230, 230)'/>
+            </View>
+            { this.state.isPredicted ?
+              <ScrollView
+                ref={(ref) => { this.scrollViewRef = ref }}
+                horizontal={true}
+                pagingEnabled={true}
+                showsHorizontalScrollIndicator={true}
+                snapToAlignment={"center"}
+                scrollEventThrottle={16}>
                 <View style={{flex: 1}}>
                   <View style={styles.graphContainer}>
-                    <InitialGraph/>
+                    <Graph
+                      weatherObject={this.state.weatherObject}
+                      graphShowing={this.state.graphShowing}
+                      index={0}/>
                   </View>
                   <View style={styles.dataContainer}>
-                    <Text style={styles.dataText}>Ready to process your location!</Text>
+                    <DataCard weatherObject={this.state.weatherObject} index={0}/>
                   </View>
                 </View>
-              }
+                <View style={{flex: 1}}>
+                  <View style={styles.graphContainer}>
+                    <Graph
+                      weatherObject={this.state.weatherObject}
+                      graphShowing={this.state.graphShowing}
+                      index={1}/>
+                  </View>
+                  <View style={styles.dataContainer}>
+                    <DataCard weatherObject={this.state.weatherObject} index={1}/>
+                  </View>
+                </View>
+                <View style={{flex: 1}}>
+                  <View style={styles.graphContainer}>
+                    <Graph
+                      weatherObject={this.state.weatherObject}
+                      graphShowing={this.state.graphShowing}
+                      index={2}/>
+                  </View>
+                  <View style={styles.dataContainer}>
+                    <DataCard weatherObject={this.state.weatherObject} index={2}/>
+                  </View>
+                </View>
+              </ScrollView>
+              :
+              <View style={{flex: 1}}>
+                <View style={styles.graphContainer}>
+                  <InitialGraph/>
+                </View>
+                <View style={styles.dataContainer}>
+                  <Text style={styles.dataText}>Ready to process your location!</Text>
+                </View>
+              </View>
+            }
 
-            </View>
           </View>
-          <View style={styles.body}>
-          </View>
-        </Swiper>
+        </View>
       </View>
     )
   };

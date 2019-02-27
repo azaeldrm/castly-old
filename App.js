@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import HomeScreen from './screens/HomeScreen/HomeScreen';
 import PredictionScreen from './screens/PredictionScreen/PredictionScreen';
 import SettingsScreen from './screens/SettingsScreen/SettingsScreen';
+import TestScreen from './screens/TestScreen/TestScreen';
 
 
 const vars = {
@@ -77,6 +78,17 @@ const SettingsStack = createStackNavigator(
   }
 );
 
+const TestStack = createStackNavigator(
+  {
+    TestScreen: {
+      screen: TestScreen
+    },
+  },
+  {
+    defaultNavigationOptions
+  }
+);
+
 
 const TabNavigator = createBottomTabNavigator(
   {
@@ -103,6 +115,20 @@ const TabNavigator = createBottomTabNavigator(
         <MaterialCommunityIcons
           size={20}
           name='cloud-outline'
+          color={tintColor}
+          style={{paddingBottom: 15, paddingTop: 20}}
+        />,
+      },
+    },
+    TestStack:
+    {
+      screen: TestStack,
+      navigationOptions: {
+        tabBarLabel: 'Test',
+        tabBarIcon: ({tintColor}) =>
+        <MaterialCommunityIcons
+          size={20}
+          name='test-tube'
           color={tintColor}
           style={{paddingBottom: 15, paddingTop: 20}}
         />,
