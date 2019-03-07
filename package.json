@@ -8,10 +8,12 @@
   },
   "dependencies": {
     "expo": "^32.0.0",
+    "firebase": "^5.8.4",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.23",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
+    "react-native-base": "^1.1.0",
     "react-native-device-info": "^0.25.1",
     "react-native-linear-gradient": "^2.5.3",
     "react-native-snap-carousel": "^3.7.5",

@@ -3,16 +3,16 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
+  TouchableHighlight,
 } from 'react-native';
 
 export default class OptionsButton extends Component {
   render() {
     return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={this.props.onPress} style={styles.button}>
+      <TouchableHighlight underlayColor={styles.button.backgroundColor} onPress={this.props.onPress} style={[styles.button, {elevation: this.props.elevation}]}>
         <Text style={styles.buttonText}>{this.props.children}</Text>
-      </TouchableOpacity>
+      </TouchableHighlight>
     </View>
     );
   }
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgb(245, 245, 245)',
     borderColor: 'rgb(245, 245, 245)',
     borderRadius: 5,
-    elevation: 3,
+    elevation: 0,
     height: 30,
     width: 90,
     alignItems: 'center',

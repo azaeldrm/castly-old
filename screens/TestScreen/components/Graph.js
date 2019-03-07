@@ -36,6 +36,16 @@ export default class Graph extends React.Component {
         svg={axesSvg}
     />*/}
 
+    const GridGradient = () => (
+      <Defs key={'gridgradient'}>
+        <LinearGradient id={'gridgradient'} x1={'0'} y1={'0'} x2={'100%'} y2={'0'} gradientUnits="userSpaceOnUse">
+          <Stop offset={'0.8'} stopColor={'rgb(0, 0, 0)'} stopOpacity={'0'}/>
+          <Stop offset={'0.50'} stopColor={'rgb(0, 0, 0)'} stopOpacity={'0.25'}/>
+          <Stop offset={'0.2'} stopColor={'rgb(0, 0, 0)'} stopOpacity={'0'}/>
+        </LinearGradient>
+      </Defs>
+    )
+
     const CloudGradient = () => (
       <Defs key={'cloudgradient'}>
         <LinearGradient id={'cloudgradient'} x1={'0'} y1={'0'} x2={'0'} y2={'100%'} gradientUnits="userSpaceOnUse">
@@ -144,10 +154,11 @@ export default class Graph extends React.Component {
         svg={{strokeWidth: 2, stroke: 'url(#cloudgradient)'}}
         >
         <CloudGradient/>
+        <GridGradient/>
         <Grid
           belowChart={true}
           svg={{
-            strokeOpacity: 0.15
+            strokeOpacity: 0.25, stroke: 'url(#gridgradient)'
           }}
         />
       </LineChart>
@@ -165,10 +176,11 @@ export default class Graph extends React.Component {
         svg={{strokeWidth: 2, stroke: 'url(#uvgradient)'}}
         >
         <UVGradient/>
+        <GridGradient/>
         <Grid
           belowChart={true}
           svg={{
-            strokeOpacity: 0.15
+            strokeOpacity: 0.25, stroke: 'url(#gridgradient)'
           }}
         />
       </LineChart>
@@ -186,10 +198,11 @@ export default class Graph extends React.Component {
         svg={{strokeWidth: 2, stroke: 'url(#precipgradient)'}}
         >
         <PrecipGradient/>
+        <GridGradient/>
         <Grid
           belowChart={true}
           svg={{
-            strokeOpacity: 0.15
+            strokeOpacity: 0.25, stroke: 'url(#gridgradient)'
           }}
         />
       </LineChart>

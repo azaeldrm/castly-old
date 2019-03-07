@@ -90,7 +90,7 @@ export default class TestScreen extends React.Component {
         <View style={styles.body}>
           <View style={styles.searchContainer}>
             <View style={styles.searchBar}>
-              <TextInput clearButtonMode='always' onChangeText={(text) => this.setState({location: text})} placeholder='Enter location...' value={this.state.location} style={styles.searchInput}/>
+              <TextInput clearButtonMode='always' onSubmitEditing={this.touchPredictButton.bind(this)} onChangeText={(text) => this.setState({location: text})} placeholder='Enter location...' value={this.state.location} style={styles.searchInput}/>
               <TouchableOpacity onPress={this.touchPredictButton.bind(this)} style={styles.searchButton}>
                 <MaterialCommunityIcons size={36} name="magnify" color='rgb(200, 200, 200)'/>
               </TouchableOpacity>

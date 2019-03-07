@@ -1,7 +1,6 @@
 import React from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Constants, Location, Permissions } from 'expo';
 
 export default class SettingsScreen extends React.Component {
 
@@ -14,61 +13,23 @@ export default class SettingsScreen extends React.Component {
     }
   };
 
-  state = {
-    latitude: null,
-    longitude: null,
+  logoutSuccessfully = () => {
+    this.props.navigation.navigate('Login')
   }
-
-  findCurrentLocation = () => {
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        const latitude = JSON.stringify(position.coords.latitude)
-        const longitude = JSON.stringify(position.coords.longitude)
-
-        this.setState({
-          latitude,
-          longitude
-        })
-      },
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-    )
-  }
-
-  findCurrentLocationAsync = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-
-    if (status !== 'granted') {
-      this.setState({
-        errorMessage: 'Permission to access location was denied'
-      })
-    }
-
-    let location = await Location.getCurrentPositionAsync({});
-    this.setState({ location });
-  }
-
-
 
   render() {
-    let text = ''
-    if (this.state.errorMessage) {
-      text = this.state.errorMessage
-    } else if (this.state.location) {
-      text = JSON.stringify(this.state.location)
-    }
-
     return (
       <View style={styles.container}>
-        <View style={{flex: 1}}>
-          <Text>This is the Settings Screen</Text>
-          <Text onPress={this.findCurrentLocationAsync}>Predict stuff</Text>
-          <Text>{text}</Text>
+        <View style={styles.body}>
+          <Text style={styles.bodyText}>I'm the SettingsScreen component</Text>
+          <TouchableOpacity style={styles.button} onPress={this.logoutSuccessfully.bind(this)}>
+            <Text style={styles.buttonText}>LOG OUT</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
   }
-
-};
+}
 
 const vars = {
   appColor: {
@@ -93,13 +54,32 @@ const vars = {
   },
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: vars.appColor.background.normal,
-    flexDirection: 'row',
-    alignItems: 'center',
-    // justifyContent: 'center',
-    // alignSelf: 'center'
+    backgroundColor: vars.appColor.background.dark
   },
+  body: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bodyText: {
+    color: vars.appColor.font.dark,
+    fontFamily: 'System',
+  },
+  button: {
+    backgroundColor: 'rgb(25, 131, 241)',
+    borderRadius: 15,
+    marginTop: 20,
+    paddingHorizontal: 40,
+    paddingVertical: 10,
+    alignItems: 'center'
+  },
+  buttonText: {
+    color: vars.appColor.font.dark,
+    fontFamily: 'System',
+  }
 });

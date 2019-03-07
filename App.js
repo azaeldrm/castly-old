@@ -1,12 +1,23 @@
 import React from 'react';
-import { createStackNavigator, createAppContainer, createBottomTabNavigator } from "react-navigation";
+import { createStackNavigator, createSwitchNavigator, createAppContainer, createBottomTabNavigator } from "react-navigation";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as firebase from 'firebase';
 
 import HomeScreen from './screens/HomeScreen/HomeScreen';
 import PredictionScreen from './screens/PredictionScreen/PredictionScreen';
 import SettingsScreen from './screens/SettingsScreen/SettingsScreen';
 import TestScreen from './screens/TestScreen/TestScreen';
+import LoginScreen from './screens/LoginScreen/LoginScreen';
 
+const firebaseConfig = {
+    apiKey: "AIzaSyCCEtRs9MWpYYGcU2dL2Ukq-gMoQn50y8s",
+    authDomain: "castlyapp.firebaseapp.com",
+    databaseURL: "https://castlyapp.firebaseio.com",
+    projectId: "castlyapp",
+    storageBucket: "castlyapp.appspot.com",
+    messagingSenderId: "701870951647"
+  };
+firebase.initializeApp(firebaseConfig);
 
 const vars = {
   appTitle: 'Castly',
@@ -43,6 +54,18 @@ const defaultNavigationOptions = {
     fontFamily: 'System',
   },
 };
+
+
+const LoginStack = createStackNavigator(
+  {
+    LoginScreen: {
+      screen: LoginScreen
+    },
+  },
+  {
+    headerMode: 'none',
+  }
+);
 
 
 const PredictionStack = createStackNavigator(
@@ -167,7 +190,15 @@ const TabNavigator = createBottomTabNavigator(
 );
 
 
-const AppContainer = createAppContainer(TabNavigator);
+const AppContainer = createAppContainer(createSwitchNavigator(
+  {
+    Login: LoginStack,
+    App: TabNavigator,
+  },
+  {
+    initialRouteName: 'Login',
+  }
+));
 
 export default class App extends React.Component {
   render() {
