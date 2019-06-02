@@ -1,3 +1,5 @@
+// @flow
+
 import React from 'react';
 
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
@@ -164,7 +166,7 @@ export default class Graph extends React.Component {
         contentInset={{top: 10, bottom: 10, left: 0, right: 0}}
         svg={{strokeWidth: 2, stroke: 'url(#optimalgradient)'}}
         >
-        <CloudGradient/>
+        <OptimalGradient/>
         <GridGradient/>
         <Grid
           belowChart={true}
@@ -254,11 +256,11 @@ export default class Graph extends React.Component {
             contentInset={yAxisInset}
             svg={axesSvg}
             formatLabel={value => {
-              if (this.props.graphShowing === 0) {
+              if (this.props.graphShowing < 2) {
                 return ('' + value*100 + '%')
-              } else if (this.props.graphShowing === 1) {
-                return ('' + value)
               } else if (this.props.graphShowing === 2) {
+                return ('' + value)
+              } else if (this.props.graphShowing === 3) {
                 return ('' + value*100 + '%')
               }
             }}

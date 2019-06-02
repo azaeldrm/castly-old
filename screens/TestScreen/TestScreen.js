@@ -56,7 +56,7 @@ export default class TestScreen extends React.Component {
     })
     .then( (response) => response.json() )
     .then( (responseJson) => {
-      console.log(responseJson.report.data)
+      console.log(responseJson)
       this.setState({
         predictionObject: responseJson,
         isPredicted: true,
@@ -79,7 +79,7 @@ export default class TestScreen extends React.Component {
     .then( () => {
     if (this.state.isPredicted === true) {
       this.scrollToInitialPosition()
-      this.setState({graphShowing: 0, elevation1: 0, elevation2: 3, elevation3: 3})
+      this.setState({graphShowing: 0, elevation1: 0, elevation2: 3, elevation3: 3, elevation4: 3})
       }
     })
   }
@@ -102,17 +102,17 @@ export default class TestScreen extends React.Component {
             { this.state.isPredicted ?
               // Interim solution, still don't understand why justifyContent: 'space-between' is not working.
               <View style={{marginLeft: 20, flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
-                <OptionsButton onPress={() => this.setState({graphShowing: 1, elevation1: 0, elevation2: 3, elevation3: 3, elevation4: 3})} elevation={this.state.elevation1}>
-                  <Text> Optimal Curve </Text>
+                <OptionsButton onPress={() => this.setState({graphShowing: 0, elevation1: 0, elevation2: 3, elevation3: 3, elevation4: 3})} elevation={this.state.elevation1}>
+                  <Text> Prediction </Text>
                 </OptionsButton>
-                <OptionsButton onPress={() => this.setState({graphShowing: 2, elevation1: 3, elevation2: 0, elevation3: 3, elevation4: 3})} elevation={this.state.elevation1}>
-                  <Text> Cloud Level </Text>
+                <OptionsButton onPress={() => this.setState({graphShowing: 1, elevation1: 3, elevation2: 0, elevation3: 3, elevation4: 3})} elevation={this.state.elevation2}>
+                  <Text> Clouds </Text>
                 </OptionsButton>
-                <OptionsButton onPress={() => this.setState({graphShowing: 3, elevation1: 3, elevation2: 3, elevation3: 0, elevation4: 3})} elevation={this.state.elevation2}>
-                  <Text> UV Index </Text>
+                <OptionsButton onPress={() => this.setState({graphShowing: 2, elevation1: 3, elevation2: 3, elevation3: 0, elevation4: 3})} elevation={this.state.elevation3}>
+                  <Text> Sun </Text>
                 </OptionsButton>
-                <OptionsButton onPress={() => this.setState({graphShowing: 4, elevation1: 3, elevation2: 3, elevation3: 3, elevation4: 0})} elevation={this.state.elevation4}>
-                  <Text> Precipitation </Text>
+                <OptionsButton onPress={() => this.setState({graphShowing: 3, elevation1: 3, elevation2: 3, elevation3: 3, elevation4: 0})} elevation={this.state.elevation4}>
+                  <Text> Rain </Text>
                 </OptionsButton>
               </View>
               :
@@ -164,17 +164,6 @@ export default class TestScreen extends React.Component {
                   </View>
                   <View style={styles.dataContainer}>
                     <DataCard predictionObject={this.state.predictionObject} index={2}/>
-                  </View>
-                </View>
-                <View style={{flex: 1}}>
-                  <View style={styles.graphContainer}>
-                    <Graph
-                      predictionObject={this.state.predictionObject}
-                      graphShowing={this.state.graphShowing}
-                      index={3}/>
-                  </View>
-                  <View style={styles.dataContainer}>
-                    <DataCard predictionObject={this.state.predictionObject} index={3}/>
                   </View>
                 </View>
               </ScrollView>

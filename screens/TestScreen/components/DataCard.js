@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react';
 
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
@@ -41,6 +43,7 @@ export default class DataCard extends React.Component {
             <MaterialCommunityIcons size={30} name={this.icons[this.props.predictionObject.forecast[this.props.index].icon]} color='rgba(0, 0, 0, 0.1)'/>
             <Text style={{fontSize: 16, fontWeight: 'bold', alignSelf: 'center', color: 'rgba(0, 0, 0, 0.1)' }}>77°C </Text>
           </View>
+          {/*
           <View style={{flex: 3}}>
             <Text style={[styles.dataTextDetails, {alignSelf: 'center'}]}>
               {this.props.predictionObject.report.data[this.props.index].dateRequested}
@@ -54,7 +57,9 @@ export default class DataCard extends React.Component {
               </Text>
             </View>
           </View>
+          */}
           <View style={{height: 1, backgroundColor: 'rgb(228, 228, 228)', width: '80%', alignSelf: 'center', marginVertical: 5}}/>
+          {/*
           <View>
             { this.props.predictionObject.report.data[this.props.index].bestTime.length === 0 ?
               <View style={{flexDirection: 'column', alignSelf: 'center'}}>
@@ -79,6 +84,7 @@ export default class DataCard extends React.Component {
               </View>
             }
           </View>
+          */}
         </View>
       </View>
 
