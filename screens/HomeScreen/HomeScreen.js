@@ -20,18 +20,18 @@ export default class HomeScreen extends React.Component {
     super(props)
 
     this.state = {
-      weatherObject: null,
+      // weatherObject: null,
       lat: null,
       lon: null,
       isLoading: true,
       isRefreshing: false,
       isLocationOn: false,
-      componentDidMount: false,
       fadeValue: new Animated.Value(0),
+      status: 'Please enable Location services!'
     }
 
     this.location = null
-    this.status = 'Loading...'
+
   }
 
   icons = {
@@ -53,21 +53,21 @@ export default class HomeScreen extends React.Component {
   _fadeAnimation = () => {
     Animated.timing(this.state.fadeValue, {
       toValue: 1,
-      duration: 200,
+      duration: 500,
       useNativeDriver: true,
     }).start()
   }
 
 
-  findCurrentLocationAsync = async () => {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-
-    if (status === 'granted') {
-      return Location.getCurrentPositionAsync({enableHighAccuracy: true});
-    } else {
-      throw new Error('Location permissions not granted.')
-    }
-  }
+  // findCurrentLocationAsync = async () => {
+  //   let { status } = await Permissions.askAsync(Permissions.LOCATION);
+  //
+  //   if (status === 'granted') {
+  //     return Location.getCurrentPositionAsync({enableHighAccuracy: true});
+  //   } else {
+  //     throw new Error('Location permissions not granted.')
+  //   }
+  // }
 
 
   fetchData = async (timestamp, latitude, longitude) => {
@@ -83,98 +83,131 @@ export default class HomeScreen extends React.Component {
         weatherObject: responseJson,
         weatherIcon: this.icons[responseJson.forecast[0].icon]
       })
+      return responseJson
     })
     .catch( (error) => {
       console.log(error)
     })
   }
 
+  _getLocationAsync = async () => {
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+    if (status !== 'granted') {
+      this.setState({
+        errorMessage: 'Permission to access location was denied',
+      });
+      ToastAndroid.showWithGravityAndOffset('Permission to access location denied', ToastAndroid.SHORT, ToastAndroid.BOTTOM, 0, 200)
+    }
+
+    let location = await Location.getCurrentPositionAsync({enableHighAccuracy: true});
+    return location
+  };
+
   _onRefresh = () => {
-    console.log('Refreshing home!')
-    this.setState({isRefreshing: true});
-    this.findCurrentLocationAsync()
-    .then((location) => {
+    this._getLocationAsync()
+    .catch( error => {
+      this.setState({status: 'Please enable Location services!'})
+      ToastAndroid.showWithGravityAndOffset('Please enable Location services', ToastAndroid.SHORT, ToastAndroid.BOTTOM, 0, 200)
+      throw new Error ('Location services off. Please enable.')
+    })
+    .then( (location) => {
+      this.setState({status: 'Loading...'})
+      console.log('Acquiring location!')
       console.log(location)
-      console.log('Refreshing location!')
-      this.fetchData(location.timestamp, location.coords.latitude, location.coords.longitude)
+      let response = this.fetchData(location.timestamp, location.coords.latitude, location.coords.longitude)
+      return response
     })
-    .then(() => {
+    .then( (responseJson) => {
       console.log('Location fetched!')
-      this.setState({isRefreshing: false, isLoading: false})
-      console.log('Home refreshed!')
+      this.setState({isRefreshing: false, isLoading: false, fadeValue: new Animated.Value(0)})
       this._fadeAnimation();
+      console.log('Home refreshed!')
+      console.log(this.state)
+
     })
-    .catch ((error) => {
+    .catch( (error) => {
       console.log(error)
-      ToastAndroid.showWithGravityAndOffset('Location services disabled', ToastAndroid.SHORT, ToastAndroid.BOTTOM, 0, 200)
-      this.setState({isRefreshing: false})
     })
   }
 
-
+  componentWillMount() {
+    console.log(this.state)
+  }
 
   componentDidMount() {
-    console.log('Acquiring home data!')
-    this.findCurrentLocationAsync()
-    .then((location) => {
+    this._getLocationAsync()
+    .catch( error => {
+      this.setState({fadeValue: new Animated.Value(1)})
+      ToastAndroid.showWithGravityAndOffset('Please enable Location services', ToastAndroid.SHORT, ToastAndroid.BOTTOM, 0, 200)
+      throw new Error ('Location services OFF. Please enable.')
+    })
+    .then( (location) => {
       console.log('Acquiring location!')
       console.log(location)
-      return this.fetchData(location.timestamp, location.coords.latitude, location.coords.longitude)
+      let response = this.fetchData(location.timestamp, location.coords.latitude, location.coords.longitude)
+      return response
     })
-    .then(() => {
-      console.log('Location acquired!')
-      this.setState({isLoading: false, componentDidMount: true})
-      console.log('Home data acquired!')
-      this._fadeAnimation()
+    .then( () => {
+      console.log('Location fetched!')
+      this.setState({isRefreshing: false, isLoading: false})
+      this._fadeAnimation();
+      console.log('Rendering...')
+      console.log(this.state)
     })
-    .catch ((error) => {
+    .catch( (error) => {
       console.log(error)
-      ToastAndroid.showWithGravityAndOffset('Location services disabled', ToastAndroid.SHORT, ToastAndroid.BOTTOM, 0, 200)
     })
-  };
+  }
+
 
 
 
   render() {
       return (
         <View style={styles.container}>
-        <Animated.View style={{flex: 1, opacity: this.state.fadeValue}}>
-          { this.state.isLoading ?
-            <ScrollView
-              contentContainerStyle={{flex:1, justifyContent: 'center', alignSelf: 'center'}}
-              refreshControl={<RefreshControl
-              refreshing={this.state.isRefreshing}
-              onRefresh={this._onRefresh}/>}>
-              <Text>{this.status}</Text>
-            </ScrollView>
-            :
-            <ScrollView
-              contentContainerStyle={{flex:1}}
-              refreshControl={<RefreshControl
-              refreshing={this.state.isRefreshing}
-              onRefresh={this._onRefresh}/>}>
-              <View style={{flex: 5, alignItems: 'center', justifyContent: 'center', paddingTop: 50}}>
-                <Text style={{fontSize: vars.fontSize.small, paddingBottom: 30, color: 'rgb(150, 150, 150)'}}>You're currently in...</Text>
-                <Text style={{fontSize: vars.fontSize.large, paddingBottom: 0}}>{this.state.weatherObject.city}, {this.state.weatherObject.state}</Text>
-                <Text style={{fontSize: vars.fontSize.medium, paddingBottom: 15, color: 'rgb(150, 150, 150)'}}>{this.state.weatherObject.country}</Text>
-                <MaterialCommunityIcons size={100} name={this.icons[this.state.weatherObject.forecast[0].icon]} color='rgba(0, 0, 0, 0.1)'/>
-              </View>
-              <View style={styles.dataContainer}>
-            { this.state.errorMessage ?
-              <View>
-              </View>
+          <Animated.View style={{flex: 1, opacity: this.state.fadeValue}}>
+            { !(this.state.weatherObject) ?
+              <ScrollView
+                contentContainerStyle={{flex:1, justifyContent: 'center', alignSelf: 'center'}}
+                refreshControl={<RefreshControl
+                refreshing={this.state.isRefreshing}
+                onRefresh={this._onRefresh}/>}>
+                <Text style={{fontSize: vars.fontSize.medium,
+                    color: 'rgb(190, 190, 190)',
+                    fontWeight: 'normal',
+                    fontFamily: 'System',
+                    alignSelf: 'center',
+                    justifyContent: 'center'}}>
+                    {this.state.status}</Text>
+              </ScrollView>
               :
-              <View style={styles.dataCard}>
-                <Text>{this.state.weatherObject.forecast[0].time}</Text>
-                <Text>{this.state.weatherObject.forecast[0].summary}</Text>
-                <Text>{Math.floor(this.state.weatherObject.forecast[0].cloudcast*100)}% cloudy</Text>
-                <Text>{Math.floor(this.state.weatherObject.forecast[0].temp)}</Text>
+              <ScrollView
+                contentContainerStyle={{flex:1}}
+                refreshControl={<RefreshControl
+                refreshing={this.state.isRefreshing}
+                onRefresh={this._onRefresh}/>}>
+                <View style={{flex: 5, alignItems: 'center', justifyContent: 'center', paddingTop: 50}}>
+                  <Text style={{fontSize: vars.fontSize.small, paddingBottom: 30, color: 'rgb(150, 150, 150)'}}>You're currently in...</Text>
+                  <Text style={{fontSize: vars.fontSize.large, paddingBottom: 0}}>{this.state.weatherObject.city}, {this.state.weatherObject.state}</Text>
+                  <Text style={{fontSize: vars.fontSize.medium, paddingBottom: 15, color: 'rgb(150, 150, 150)'}}>{this.state.weatherObject.country}</Text>
+                  <MaterialCommunityIcons size={100} name={this.icons[this.state.weatherObject.forecast[0].icon]} color='rgba(0, 0, 0, 0.1)'/>
+                </View>
+                <View style={styles.dataContainer}>
+              { this.state.errorMessage ?
+                <View>
+                </View>
+                :
+                <View style={styles.dataCard}>
+                  <Text>{this.state.weatherObject.forecast[0].time}</Text>
+                  <Text>{this.state.weatherObject.forecast[0].summary}</Text>
+                  <Text>{Math.floor(this.state.weatherObject.forecast[0].cloudcast*100)}% cloudy</Text>
+                  <Text>{Math.floor(this.state.weatherObject.forecast[0].temp)}</Text>
+                </View>
+              }
               </View>
+            </ScrollView>
             }
-            </View>
-          </ScrollView>
-          }
-        </Animated.View>
+          </Animated.View>
         </View>
       );
     }

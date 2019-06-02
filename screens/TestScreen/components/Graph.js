@@ -51,9 +51,8 @@ export default class Graph extends React.Component {
     const OptimalGradient = () => (
       <Defs key={'optimalgradient'}>
         <LinearGradient id={'optimalgradient'} x1={'0'} y1={'0'} x2={'0'} y2={'100%'} gradientUnits="userSpaceOnUse">
-          <Stop offset={'1'} stopColor={'rgb(214, 40, 40)'}/>
-          <Stop offset={'0.70'} stopColor={'rgb(247, 214, 73)'}/>
-          <Stop offset={'0'} stopColor={'rgb(111, 209, 247)'}/>
+          <Stop offset={'1'} stopColor={'rgb(232, 88, 88)'}/>
+          <Stop offset={'0.65'} stopColor={'rgb(50, 196, 27)'}/>
         </LinearGradient>
       </Defs>
     )
