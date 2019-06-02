@@ -46,6 +46,16 @@ export default class Graph extends React.Component {
       </Defs>
     )
 
+    const OptimalGradient = () => (
+      <Defs key={'optimalgradient'}>
+        <LinearGradient id={'optimalgradient'} x1={'0'} y1={'0'} x2={'0'} y2={'100%'} gradientUnits="userSpaceOnUse">
+          <Stop offset={'1'} stopColor={'rgb(214, 40, 40)'}/>
+          <Stop offset={'0.70'} stopColor={'rgb(247, 214, 73)'}/>
+          <Stop offset={'0'} stopColor={'rgb(111, 209, 247)'}/>
+        </LinearGradient>
+      </Defs>
+    )
+
     const CloudGradient = () => (
       <Defs key={'cloudgradient'}>
         <LinearGradient id={'cloudgradient'} x1={'0'} y1={'0'} x2={'0'} y2={'100%'} gradientUnits="userSpaceOnUse">
@@ -140,6 +150,7 @@ export default class Graph extends React.Component {
     let graphToShow = null
     var data = [0,1]
 
+
     if (this.props.graphShowing === 0) {
       data = [0,1]
       graphToShow =
@@ -148,7 +159,29 @@ export default class Graph extends React.Component {
         curve={shape.curveMonotoneX}
         yMin={0}
         yMax={1}
-        data={this.props.weatherObject.forecast[this.props.index].cloudCover}
+        data={this.props.predictionObject.forecast[this.props.index].optimalCurve}
+        animate={true}
+        contentInset={{top: 10, bottom: 10, left: 0, right: 0}}
+        svg={{strokeWidth: 2, stroke: 'url(#optimalgradient)'}}
+        >
+        <CloudGradient/>
+        <GridGradient/>
+        <Grid
+          belowChart={true}
+          svg={{
+            strokeOpacity: 0.25, stroke: 'url(#gridgradient)'
+          }}
+        />
+      </LineChart>
+    } else if (this.props.graphShowing === 1) {
+      data = [0,1]
+      graphToShow =
+      <LineChart
+        style={styles.graph}
+        curve={shape.curveMonotoneX}
+        yMin={0}
+        yMax={1}
+        data={this.props.predictionObject.forecast[this.props.index].cloudCover}
         animate={true}
         contentInset={{top: 10, bottom: 10, left: 0, right: 0}}
         svg={{strokeWidth: 2, stroke: 'url(#cloudgradient)'}}
@@ -162,7 +195,7 @@ export default class Graph extends React.Component {
           }}
         />
       </LineChart>
-    } else if (this.props.graphShowing === 1) {
+    } else if (this.props.graphShowing === 2) {
       data = [0,12]
       graphToShow =
       <LineChart
@@ -170,7 +203,7 @@ export default class Graph extends React.Component {
         curve={shape.curveMonotoneX}
         yMin={0}
         yMax={12}
-        data={this.props.weatherObject.forecast[this.props.index].uvIndex}
+        data={this.props.predictionObject.forecast[this.props.index].uvIndex}
         animate={true}
         contentInset={{top: 10, bottom: 10, left: 0, right: 0}}
         svg={{strokeWidth: 2, stroke: 'url(#uvgradient)'}}
@@ -184,7 +217,7 @@ export default class Graph extends React.Component {
           }}
         />
       </LineChart>
-    } else if (this.props.graphShowing === 2) {
+    } else if (this.props.graphShowing === 3) {
       data = [0,1]
       graphToShow =
       <LineChart
@@ -192,7 +225,7 @@ export default class Graph extends React.Component {
         curve={shape.curveMonotoneX}
         yMin={0}
         yMax={1}
-        data={this.props.weatherObject.forecast[this.props.index].precipProbability}
+        data={this.props.predictionObject.forecast[this.props.index].precipProbability}
         animate={true}
         contentInset={{top: 10, bottom: 10, left: 0, right: 0}}
         svg={{strokeWidth: 2, stroke: 'url(#precipgradient)'}}

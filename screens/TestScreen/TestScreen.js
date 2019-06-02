@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react';
 
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Keyboard, Dimensions, Animated } from 'react-native';
@@ -19,11 +21,12 @@ export default class TestScreen extends React.Component {
       timestamp: null,
       days: '3',
       weatherIcon: 'amazon-drive',
-      weatherObject: {},
+      predictionObject: {},
       graphShowing: 0,
       elevation1: 0,
       elevation2: 3,
       elevation3: 3,
+      elevation4: 3
     }
   };
 
@@ -45,7 +48,7 @@ export default class TestScreen extends React.Component {
     let timestamp = Math.floor(Date.now()/1000)
     console.log('Search started!')
     Keyboard.dismiss()
-    return fetch(`https://castly-test.herokuapp.com/prediction/?timestamp=${timestamp}&location=${this.state.location}&days=${this.state.days}`, {
+    return fetch(`https://castly-test.herokuapp.com/test/?timestamp=${timestamp}&location=${this.state.location}&days=${this.state.days}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -55,8 +58,7 @@ export default class TestScreen extends React.Component {
     .then( (responseJson) => {
       console.log(responseJson.report.data)
       this.setState({
-        weatherObject: responseJson,
-        weatherResults: responseJson.results,
+        predictionObject: responseJson,
         isPredicted: true,
         location: '',
       })
@@ -100,13 +102,16 @@ export default class TestScreen extends React.Component {
             { this.state.isPredicted ?
               // Interim solution, still don't understand why justifyContent: 'space-between' is not working.
               <View style={{marginLeft: 20, flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
-                <OptionsButton onPress={() => this.setState({graphShowing: 0, elevation1: 0, elevation2: 3, elevation3: 3})} elevation={this.state.elevation1}>
+                <OptionsButton onPress={() => this.setState({graphShowing: 1, elevation1: 0, elevation2: 3, elevation3: 3, elevation4: 3})} elevation={this.state.elevation1}>
+                  <Text> Optimal Curve </Text>
+                </OptionsButton>
+                <OptionsButton onPress={() => this.setState({graphShowing: 2, elevation1: 3, elevation2: 0, elevation3: 3, elevation4: 3})} elevation={this.state.elevation1}>
                   <Text> Cloud Level </Text>
                 </OptionsButton>
-                <OptionsButton onPress={() => this.setState({graphShowing: 1, elevation1: 3, elevation2: 0, elevation3: 3})} elevation={this.state.elevation2}>
+                <OptionsButton onPress={() => this.setState({graphShowing: 3, elevation1: 3, elevation2: 3, elevation3: 0, elevation4: 3})} elevation={this.state.elevation2}>
                   <Text> UV Index </Text>
                 </OptionsButton>
-                <OptionsButton onPress={() => this.setState({graphShowing: 2, elevation1: 3, elevation2: 3, elevation3: 0})} elevation={this.state.elevation3}>
+                <OptionsButton onPress={() => this.setState({graphShowing: 4, elevation1: 3, elevation2: 3, elevation3: 3, elevation4: 0})} elevation={this.state.elevation4}>
                   <Text> Precipitation </Text>
                 </OptionsButton>
               </View>
@@ -131,34 +136,45 @@ export default class TestScreen extends React.Component {
                 <View style={{flex: 1}}>
                   <View style={styles.graphContainer}>
                     <Graph
-                      weatherObject={this.state.weatherObject}
+                      predictionObject={this.state.predictionObject}
                       graphShowing={this.state.graphShowing}
                       index={0}/>
                   </View>
                   <View style={styles.dataContainer}>
-                    <DataCard weatherObject={this.state.weatherObject} index={0}/>
+                    <DataCard predictionObject={this.state.predictionObject} index={0}/>
                   </View>
                 </View>
                 <View style={{flex: 1}}>
                   <View style={styles.graphContainer}>
                     <Graph
-                      weatherObject={this.state.weatherObject}
+                      predictionObject={this.state.predictionObject}
                       graphShowing={this.state.graphShowing}
                       index={1}/>
                   </View>
                   <View style={styles.dataContainer}>
-                    <DataCard weatherObject={this.state.weatherObject} index={1}/>
+                    <DataCard predictionObject={this.state.predictionObject} index={1}/>
                   </View>
                 </View>
                 <View style={{flex: 1}}>
                   <View style={styles.graphContainer}>
                     <Graph
-                      weatherObject={this.state.weatherObject}
+                      predictionObject={this.state.predictionObject}
                       graphShowing={this.state.graphShowing}
                       index={2}/>
                   </View>
                   <View style={styles.dataContainer}>
-                    <DataCard weatherObject={this.state.weatherObject} index={2}/>
+                    <DataCard predictionObject={this.state.predictionObject} index={2}/>
+                  </View>
+                </View>
+                <View style={{flex: 1}}>
+                  <View style={styles.graphContainer}>
+                    <Graph
+                      predictionObject={this.state.predictionObject}
+                      graphShowing={this.state.graphShowing}
+                      index={3}/>
+                  </View>
+                  <View style={styles.dataContainer}>
+                    <DataCard predictionObject={this.state.predictionObject} index={3}/>
                   </View>
                 </View>
               </ScrollView>

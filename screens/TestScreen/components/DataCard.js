@@ -38,25 +38,25 @@ export default class DataCard extends React.Component {
       <View style={{flex: 1, paddingHorizontal: 10}}>
         <View style={styles.dataCard}>
           <View style={{position: 'absolute', marginTop: 5, width: '100%', flexDirection: 'row', alignSelf: 'center', justifyContent: 'space-between'}}>
-            <MaterialCommunityIcons size={30} name={this.icons[this.props.weatherObject.forecast[this.props.index].icon]} color='rgba(0, 0, 0, 0.1)'/>
+            <MaterialCommunityIcons size={30} name={this.icons[this.props.predictionObject.forecast[this.props.index].icon]} color='rgba(0, 0, 0, 0.1)'/>
             <Text style={{fontSize: 16, fontWeight: 'bold', alignSelf: 'center', color: 'rgba(0, 0, 0, 0.1)' }}>77°C </Text>
           </View>
           <View style={{flex: 3}}>
             <Text style={[styles.dataTextDetails, {alignSelf: 'center'}]}>
-              {this.props.weatherObject.report.data[this.props.index].dateRequested}
+              {this.props.predictionObject.report.data[this.props.index].dateRequested}
             </Text>
             <View style={{flexDirection: 'column', justifyContent: 'center', height:'100%', paddingBottom: 10}}>
               <Text style={[styles.dataTextTitle, {alignSelf: 'center'}]}>
-                {this.props.weatherObject.location}
+                {this.props.predictionObject.location}
               </Text>
               <Text style={[styles.dataTextBody, {alignSelf: 'center'}]}>
-                {this.props.weatherObject.forecast[this.props.index].summary}
+                {this.props.predictionObject.forecast[this.props.index].summary}
               </Text>
             </View>
           </View>
           <View style={{height: 1, backgroundColor: 'rgb(228, 228, 228)', width: '80%', alignSelf: 'center', marginVertical: 5}}/>
           <View>
-            { this.props.weatherObject.report.data[this.props.index].bestTime.length === 0 ?
+            { this.props.predictionObject.report.data[this.props.index].bestTime.length === 0 ?
               <View style={{flexDirection: 'column', alignSelf: 'center'}}>
                 <Text style={styles.dataTextDetails}>Weather conditions for this day are not optimal.</Text>
               </View>
@@ -65,16 +65,16 @@ export default class DataCard extends React.Component {
                 <View style={{flexDirection: 'column', alignSelf: 'stretch'}}>
                   <Text style={styles.dataTextDetails}>Best time to take photos:</Text>
                   <Text style={[styles.dataTextDetails, {fontWeight: 'bold'}]}>
-                    { this.props.weatherObject.report.data[this.props.index].bestTime.length === 2 ?
-                      this.props.weatherObject.report.data[this.props.index].bestTime[0] + " to " + this.props.weatherObject.report.data[this.props.index].bestTime[1]
+                    { this.props.predictionObject.report.data[this.props.index].bestTime.length === 2 ?
+                      this.props.predictionObject.report.data[this.props.index].bestTime[0] + " to " + this.props.predictionObject.report.data[this.props.index].bestTime[1]
                       :
-                      this.props.weatherObject.report.data[this.props.index].bestTime
+                      this.props.predictionObject.report.data[this.props.index].bestTime
                     }
                   </Text>
                 </View>
                 <View style={{flexDirection: 'column', alignSelf: 'stretch'}}>
                   <Text style={styles.dataTextDetails}>Cloud coverage:</Text>
-                  <Text style={[styles.dataTextDetails, {fontWeight: 'bold'}]}>{Math.floor(this.props.weatherObject.report.data[this.props.index].cloudCover*100) + '%'}</Text>
+                  <Text style={[styles.dataTextDetails, {fontWeight: 'bold'}]}>{Math.floor(this.props.predictionObject.report.data[this.props.index].cloudCover*100) + '%'}</Text>
                 </View>
               </View>
             }

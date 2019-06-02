@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react';
 
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Keyboard, Dimensions } from 'react-native';
